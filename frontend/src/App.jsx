@@ -1124,6 +1124,9 @@ function AdminHeroes({ heroes, setHeroes, fetchHeroes, apiBase }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
 
 // ==================== ADMIN: TIER LIST ====================
 function AdminTier({ heroes, setHeroes, fetchHeroes, apiBase }) {
@@ -1289,5 +1292,3 @@ function AdminRelations({ heroes, setHeroes, fetchHeroes, apiBase }) {
     </div>
   );
 }
-}
-)
