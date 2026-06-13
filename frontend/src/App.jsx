@@ -96,7 +96,7 @@ const TOURNAMENT_ORDER = [
 ];
 
 // ─── API ──────────────────────────────────────────────────────────────────────
-const API_BASE = (typeof import !== "undefined" && import.meta?.env?.VITE_API_URL) || "http://localhost:4000";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
 function normalizeHero(h) {
   return { ...h, id: h._id||h.id, img: h.imgUrl ? `${API_BASE}${h.imgUrl}` : (h.img||"") };
 }
