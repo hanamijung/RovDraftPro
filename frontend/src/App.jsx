@@ -5,19 +5,19 @@ const DEFAULT_HEROES = [
   { id:1,  name:"Airi",         role:["Assassin"],          tier:"S",  emoji:"⚔️",  color:"#e879f9" },
   { id:2,  name:"Alice",        role:["Mage"],              tier:"A",  emoji:"🔮",  color:"#818cf8" },
   { id:3,  name:"Arthur",       role:["Tank"],              tier:"B",  emoji:"🛡️",  color:"#fbbf24" },
-  { id:4,  name:"Astrid",       role:["Warrior"],           tier:"A",  emoji:"🗡️",  color:"#f472b6" },
+  { id:4,  name:"Astrid",       role:["Fighter"],           tier:"A",  emoji:"🗡️",  color:"#f472b6" },
   { id:5,  name:"Batman",       role:["Assassin"],          tier:"S",  emoji:"🦇",  color:"#6366f1" },
   { id:6,  name:"Butterfly",    role:["Assassin"],          tier:"S+", emoji:"🦋",  color:"#34d399" },
-  { id:7,  name:"Capheny",      role:["Marksman"],          tier:"A",  emoji:"🤖",  color:"#60a5fa" },
+  { id:7,  name:"Capheny",      role:["Carry"],          tier:"A",  emoji:"🤖",  color:"#60a5fa" },
   { id:8,  name:"Chaugnar",     role:["Support","Tank"],    tier:"B",  emoji:"🐘",  color:"#9ca3af" },
   { id:9,  name:"Dirak",        role:["Mage"],              tier:"A",  emoji:"🌀",  color:"#7c3aed" },
   { id:10, name:"D'Arcy",       role:["Mage"],              tier:"S",  emoji:"🔥",  color:"#fb923c" },
-  { id:11, name:"Elsu",         role:["Marksman"],          tier:"S",  emoji:"🏹",  color:"#10b981" },
+  { id:11, name:"Elsu",         role:["Carry"],          tier:"S",  emoji:"🏹",  color:"#10b981" },
   { id:12, name:"Enzo",         role:["Tank"],              tier:"A",  emoji:"💎",  color:"#f43f5e" },
   { id:13, name:"Errol",        role:["Support"],           tier:"B",  emoji:"🐦",  color:"#a78bfa" },
   { id:14, name:"Esmeralda",    role:["Mage","Tank"],       tier:"A",  emoji:"💧",  color:"#2dd4bf" },
   { id:15, name:"Evelynn",      role:["Assassin"],          tier:"A",  emoji:"🌸",  color:"#c084fc" },
-  { id:16, name:"Florentino",   role:["Warrior"],           tier:"S+", emoji:"👑",  color:"#fbbf24" },
+  { id:16, name:"Florentino",   role:["Fighter"],           tier:"S+", emoji:"👑",  color:"#fbbf24" },
   { id:17, name:"Grakk",        role:["Tank"],              tier:"A",  emoji:"🦖",  color:"#4ade80" },
   { id:18, name:"Hayate",       role:["Assassin"],          tier:"B",  emoji:"💨",  color:"#38bdf8" },
   { id:19, name:"Ignis",        role:["Mage"],              tier:"B",  emoji:"🔥",  color:"#ef4444" },
@@ -26,11 +26,11 @@ const DEFAULT_HEROES = [
   { id:22, name:"Joker",        role:["Assassin"],          tier:"S",  emoji:"🃏",  color:"#a3e635" },
   { id:23, name:"Krixi",        role:["Mage"],              tier:"B",  emoji:"🧚",  color:"#f0abfc" },
   { id:24, name:"Kufra",        role:["Tank"],              tier:"S",  emoji:"⛓️",  color:"#6b7280" },
-  { id:25, name:"Laville",      role:["Marksman"],          tier:"S",  emoji:"🔫",  color:"#93c5fd" },
+  { id:25, name:"Laville",      role:["Carry"],          tier:"S",  emoji:"🔫",  color:"#93c5fd" },
   { id:26, name:"Lauriel",      role:["Mage"],              tier:"A",  emoji:"🌙",  color:"#d8b4fe" },
-  { id:27, name:"Lindis",       role:["Marksman"],          tier:"A",  emoji:"🦊",  color:"#86efac" },
-  { id:28, name:"Lu Bu",        role:["Warrior"],           tier:"S+", emoji:"🐉",  color:"#dc2626" },
-  { id:29, name:"Maloch",       role:["Tank","Warrior"],    tier:"A",  emoji:"👹",  color:"#16a34a" },
+  { id:27, name:"Lindis",       role:["Carry"],          tier:"A",  emoji:"🦊",  color:"#86efac" },
+  { id:28, name:"Lu Bu",        role:["Fighter"],           tier:"S+", emoji:"🐉",  color:"#dc2626" },
+  { id:29, name:"Maloch",       role:["Tank","Fighter"],    tier:"A",  emoji:"👹",  color:"#16a34a" },
   { id:30, name:"Mganga",       role:["Mage","Support"],    tier:"B",  emoji:"🧙",  color:"#65a30d" },
   { id:31, name:"Mina",         role:["Support"],           tier:"S",  emoji:"🌟",  color:"#fb7185" },
   { id:32, name:"Momo",         role:["Mage"],              tier:"B",  emoji:"🐼",  color:"#d1d5db" },
@@ -39,21 +39,21 @@ const DEFAULT_HEROES = [
   { id:35, name:"Omega",        role:["Tank"],              tier:"B",  emoji:"🤖",  color:"#64748b" },
   { id:36, name:"Ormarr",       role:["Tank"],              tier:"A",  emoji:"🦍",  color:"#854d0e" },
   { id:37, name:"Peura",        role:["Support"],           tier:"A",  emoji:"🦌",  color:"#a3e635" },
-  { id:38, name:"Raz",          role:["Warrior"],           tier:"S",  emoji:"🌋",  color:"#f97316" },
+  { id:38, name:"Raz",          role:["Fighter"],           tier:"S",  emoji:"🌋",  color:"#f97316" },
   { id:39, name:"Riktor",       role:["Tank"],              tier:"B",  emoji:"⚙️",  color:"#94a3b8" },
-  { id:40, name:"Ryoma",        role:["Warrior"],           tier:"S",  emoji:"⚔️",  color:"#0ea5e9" },
-  { id:41, name:"Skud",         role:["Warrior"],           tier:"B",  emoji:"🐗",  color:"#78716c" },
+  { id:40, name:"Ryoma",        role:["Fighter"],           tier:"S",  emoji:"⚔️",  color:"#0ea5e9" },
+  { id:41, name:"Skud",         role:["Fighter"],           tier:"B",  emoji:"🐗",  color:"#78716c" },
   { id:42, name:"Slimz",        role:["Assassin"],          tier:"A",  emoji:"🐊",  color:"#22d3ee" },
-  { id:43, name:"Taara",        role:["Warrior"],           tier:"A",  emoji:"🪓",  color:"#f59e0b" },
-  { id:44, name:"Tel'Annas",    role:["Marksman"],          tier:"S",  emoji:"🍃",  color:"#a3e635" },
+  { id:43, name:"Taara",        role:["Fighter"],           tier:"A",  emoji:"🪓",  color:"#f59e0b" },
+  { id:44, name:"Tel'Annas",    role:["Carry"],          tier:"S",  emoji:"🍃",  color:"#a3e635" },
   { id:45, name:"Thane",        role:["Tank"],              tier:"S",  emoji:"🧊",  color:"#60a5fa" },
   { id:46, name:"Tulen",        role:["Mage"],              tier:"S+", emoji:"⚡",  color:"#fcd34d" },
-  { id:47, name:"Valhein",      role:["Marksman"],          tier:"A",  emoji:"🎯",  color:"#fb923c" },
-  { id:48, name:"Violet",       role:["Marksman"],          tier:"S",  emoji:"💜",  color:"#c084fc" },
-  { id:49, name:"Wiro",         role:["Warrior"],           tier:"B",  emoji:"🌊",  color:"#67e8f9" },
-  { id:50, name:"Wonder Woman", role:["Warrior","Tank"],    tier:"A",  emoji:"🦅",  color:"#fde047" },
+  { id:47, name:"Valhein",      role:["Carry"],          tier:"A",  emoji:"🎯",  color:"#fb923c" },
+  { id:48, name:"Violet",       role:["Carry"],          tier:"S",  emoji:"💜",  color:"#c084fc" },
+  { id:49, name:"Wiro",         role:["Fighter"],           tier:"B",  emoji:"🌊",  color:"#67e8f9" },
+  { id:50, name:"Wonder Woman", role:["Fighter","Tank"],    tier:"A",  emoji:"🦅",  color:"#fde047" },
   { id:51, name:"Xeniel",       role:["Support","Tank"],    tier:"A",  emoji:"🕊️",  color:"#e0f2fe" },
-  { id:52, name:"Yorn",         role:["Marksman"],          tier:"A",  emoji:"🍃",  color:"#4ade80" },
+  { id:52, name:"Yorn",         role:["Carry"],          tier:"A",  emoji:"🍃",  color:"#4ade80" },
   { id:53, name:"Zata",         role:["Assassin"],          tier:"B",  emoji:"🦞",  color:"#38bdf8" },
   { id:54, name:"Zephys",       role:["Assassin"],          tier:"S",  emoji:"💀",  color:"#475569" },
   { id:55, name:"Zill",         role:["Mage"],              tier:"A",  emoji:"🌩️", color:"#818cf8" },
@@ -65,9 +65,9 @@ const DEFAULT_HEROES = [
 ];
 
 const TIERS = ["S+","S","A","B","C","D"];
-const ROLES = ["Tank","Warrior","Assassin","Mage","Marksman","Support"];
+const ROLES = ["Tank","Fighter","Assassin","Mage","Carry","Support"];
 const TIER_COLORS = { "S+":"#f97316","S":"#eab308","A":"#22c55e","B":"#3b82f6","C":"#8b5cf6","D":"#6b7280" };
-const ROLE_COLORS = { Tank:"#60a5fa",Warrior:"#f97316",Assassin:"#a78bfa",Mage:"#818cf8",Marksman:"#34d399",Support:"#f472b6" };
+const ROLE_COLORS = { Tank:"#60a5fa", Fighter:"#f97316", Assassin:"#a78bfa", Mage:"#818cf8", Carry:"#34d399", Support:"#f472b6" };
 
 // ─── DRAFT ORDERS ─────────────────────────────────────────────────────────────
 const RANKED_ORDER = [
@@ -395,7 +395,7 @@ const ROLE_SVG = {
       <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.5C16.5 22.15 20 17.25 20 12V6L12 2zm0 2.18l6 3V12c0 4.12-2.72 7.97-6 9.28C8.72 19.97 6 16.12 6 12V7.18l6-3z"/>
     </svg>
   ),
-  Warrior: (
+  Fighter: (
     <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
       <path d="M6.5 3.5L3 7l4 4-2 2 1.5 1.5 2-2 1 1-1 4.5L12 21l2.5-3-1-4.5 1-1 2 2L18 13l-2-2 4-4-3.5-3.5-4 4-1-1V4h-2v2.5l-1 1-4-4z"/>
     </svg>
@@ -407,11 +407,11 @@ const ROLE_SVG = {
   ),
   Mage: (
     <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
       <path d="M12 2l1.5 4h4l-3.25 2.36 1.25 3.86L12 9.9l-3.5 2.32 1.25-3.86L6.5 6h4z"/>
+      <path d="M12 11v11M8 16h8" stroke="currentColor" strokeWidth="1.5" fill="none"/>
     </svg>
   ),
-  Marksman: (
+  Carry: (
     <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-12c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
       <path d="M11 1h2v4h-2zm0 18h2v4h-2zM1 11h4v2H1zm18 0h4v2h-4z"/>
@@ -686,7 +686,7 @@ function SuggestionPanel({ draft, heroes, cur, usedIds, bannedIds }) {
   const hints = [];
   if (!isBan) {
     if (!myRoles.has("Tank")&&myPicks.length>=2) hints.push({ t:"ขาด Tank", c:"#f97316" });
-    if (!myRoles.has("Marksman")&&!myRoles.has("Mage")&&myPicks.length>=2) hints.push({ t:"ขาด Carry", c:"#eab308" });
+    if (!myRoles.has("Carry")&&!myRoles.has("Mage")&&myPicks.length>=2) hints.push({ t:"ขาด Carry", c:"#eab308" });
     if (!myRoles.has("Support")&&myPicks.length>=3) hints.push({ t:"ขาด Support", c:"#f472b6" });
     if (enemyPicks.some(e=>e.role.includes("Assassin"))&&!myRoles.has("Tank")) hints.push({ t:"ศัตรูมี Assassin", c:"#ef4444" });
   }
@@ -737,7 +737,7 @@ function DraftAnalysis({ draft, heroes }) {
     const strengths=[], weaknesses=[];
     if (valid.some(h=>h.role.includes("Tank"))) strengths.push("มีตัวรับ");
     else weaknesses.push("ขาด Tank");
-    if (valid.some(h=>h.role.includes("Marksman")||h.role.includes("Mage"))) strengths.push("มี Carry");
+    if (valid.some(h=>h.role.includes("Carry")||h.role.includes("Mage"))) strengths.push("มี Carry");
     else weaknesses.push("ขาด Carry");
     if (valid.some(h=>h.role.includes("Support"))) strengths.push("มี Support");
     else weaknesses.push("ขาด Support");
