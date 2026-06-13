@@ -209,6 +209,8 @@ function DraftPage({ heroes }) {
   const [game, setGame] = useState(1);
   const [draft, setDraft] = useState(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
+  // BO: track hero ids our team (mySide) already picked across games
+  const [boLockedIds, setBoLockedIds] = useState(new Set());
 
   function initDraft(order, side, myN, enemyN) {
     const bansPerTeam = Math.max(...order.filter(o=>o.phase==="ban").map(o=>o.slot)) + 1;
@@ -225,8 +227,18 @@ function DraftPage({ heroes }) {
     setShowAnalysis(false);
   }
 
-  function start() { initDraft(mode==="ranked"?RANKED_ORDER:TOURNAMENT_ORDER, mySide, myName, enemyName); setScreen("draft"); }
+  function start() {
+    setBoLockedIds(new Set());
+    initDraft(mode==="ranked"?RANKED_ORDER:TOURNAMENT_ORDER, mySide, myName, enemyName);
+    setScreen("draft");
+  }
+
   function nextGame() {
+    // Lock heroes our team picked this game before moving on
+    if (draft) {
+      const myPicks = (draft.mySide==="blue" ? draft.bluePicks : draft.redPicks).filter(Boolean);
+      setBoLockedIds(prev => new Set([...prev, ...myPicks.map(h=>h.id)]));
+    }
     const ns = mySide==="blue"?"red":"blue";
     setMySide(ns); setGame(g=>g+1);
     initDraft(TOURNAMENT_ORDER, ns, myName, enemyName);
@@ -302,7 +314,7 @@ function DraftPage({ heroes }) {
         </div>
       </div>
 
-      {draft && <DraftBoard draft={draft} setDraft={setDraft} heroes={heroes} />}
+      {draft && <DraftBoard draft={draft} setDraft={setDraft} heroes={heroes} boLockedIds={mode==="tournament"?boLockedIds:new Set()} />}
       {showAnalysis && draft && <DraftAnalysis draft={draft} heroes={heroes} />}
     </div>
   );
@@ -362,7 +374,7 @@ function PhaseBar({ order, step }) {
           <div key={i} style={{ display:"flex", alignItems:"center", gap:6 }}>
             {i>0&&<div style={{ width:20, height:1, background:done?col+"44":C.border }} />}
             <div style={{ fontSize:10, fontWeight:active?700:400, padding:"3px 12px", borderRadius:20, background:active?col+"22":done?col+"11":"transparent", color:active?col:done?col+"88":C.textDim, border:`1px solid ${active?col:done?col+"33":C.border}`, letterSpacing:"0.05em", fontFamily:"Rajdhani,sans-serif", transition:"all .2s" }}>
-              {done?"✓ ":active?"▶ "}{isBan?"BAN":"PICK"} {Math.ceil(p.num/2)}
+              {done && "✓ "}{active && !done && "▶ "}{isBan?"BAN":"PICK"} {Math.ceil(p.num/2)}
             </div>
           </div>
         );
@@ -371,9 +383,70 @@ function PhaseBar({ order, step }) {
   );
 }
 
+// ─── ROLE FILTER BAR ──────────────────────────────────────────────────────────
+const ROLE_SVG = {
+  All: (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+    </svg>
+  ),
+  Tank: (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+      <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.5C16.5 22.15 20 17.25 20 12V6L12 2zm0 2.18l6 3V12c0 4.12-2.72 7.97-6 9.28C8.72 19.97 6 16.12 6 12V7.18l6-3z"/>
+    </svg>
+  ),
+  Warrior: (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+      <path d="M6.5 3.5L3 7l4 4-2 2 1.5 1.5 2-2 1 1-1 4.5L12 21l2.5-3-1-4.5 1-1 2 2L18 13l-2-2 4-4-3.5-3.5-4 4-1-1V4h-2v2.5l-1 1-4-4z"/>
+    </svg>
+  ),
+  Assassin: (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+      <path d="M20 4l-4 4 1 5-8 8-1-1 1-1-4-4-1 1-1-1 8-8 5 1 4-4zM9 15l-2 2 1 1 2-2-1-1zm3-3l-2 2 1 1 2-2-1-1z"/>
+    </svg>
+  ),
+  Mage: (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+      <path d="M12 2l1.5 4h4l-3.25 2.36 1.25 3.86L12 9.9l-3.5 2.32 1.25-3.86L6.5 6h4z"/>
+    </svg>
+  ),
+  Marksman: (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-12c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
+      <path d="M11 1h2v4h-2zm0 18h2v4h-2zM1 11h4v2H1zm18 0h4v2h-4z"/>
+    </svg>
+  ),
+  Support: (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+    </svg>
+  ),
+};
+
+function RoleFilterBar({ active, onChange }) {
+  const tabs = ["All", ...ROLES];
+  return (
+    <div style={{ display:"flex", gap:6, overflowX:"auto", paddingBottom:4, marginBottom:8, scrollbarWidth:"none" }}>
+      {tabs.map(r=>{
+        const isActive = active===r;
+        const col = r==="All" ? C.gold : (ROLE_COLORS[r]||C.textDim);
+        return (
+          <button key={r} onClick={()=>onChange(r===active&&r!=="All"?"All":r)} title={r}
+            style={{ flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", gap:5, background:isActive?`${col}22`:C.bgCard, color:isActive?col:C.textDim, border:`1.5px solid ${isActive?col+"99":C.border}`, borderRadius:isActive?20:10, padding: r==="All"?"6px 14px":"7px 10px", cursor:"pointer", fontWeight:isActive?700:400, transition:"all .15s", minWidth: r==="All"?60:40 }}>
+            {ROLE_SVG[r]}
+            {r==="All" && <span style={{ fontSize:12, letterSpacing:"0.05em", fontFamily:"Rajdhani,sans-serif" }}>All</span>}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 // ─── DRAFT BOARD ──────────────────────────────────────────────────────────────
-function DraftBoard({ draft, setDraft, heroes }) {
+function DraftBoard({ draft, setDraft, heroes, boLockedIds=new Set() }) {
   const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("All");
   const { order, step, blueBans, redBans, bluePicks, redPicks } = draft;
   const isDone = step >= order.length;
   const cur = !isDone ? order[step] : null;
@@ -413,7 +486,11 @@ function DraftBoard({ draft, setDraft, heroes }) {
     });
   }
 
-  const filtered = heroes.filter(h=>h.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = heroes.filter(h=>{
+    const matchSearch = h.name.toLowerCase().includes(search.toLowerCase());
+    const matchRole   = roleFilter==="All" || (h.role||[]).includes(roleFilter);
+    return matchSearch && matchRole;
+  });
 
   return (
     <div>
@@ -473,7 +550,8 @@ function DraftBoard({ draft, setDraft, heroes }) {
       {/* Suggestion */}
       {!isDone && <SuggestionPanel draft={draft} heroes={heroes} cur={cur} usedIds={usedIds} bannedIds={bannedIds} />}
 
-      {/* Search + Undo */}
+      {/* Role Filter + Search + Undo */}
+      <RoleFilterBar active={roleFilter} onChange={setRoleFilter} />
       <div style={{ display:"flex", gap:8, marginBottom:8 }}>
         <div style={{ flex:1, position:"relative" }}>
           <span style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", color:C.textDim, fontSize:14 }}>🔍</span>
@@ -482,16 +560,25 @@ function DraftBoard({ draft, setDraft, heroes }) {
         <button onClick={undo} disabled={step<=0} style={{ background:step>0?"#ef444418":"transparent", color:step>0?"#ef4444":C.textMuted, border:`1px solid ${step>0?"#ef444433":C.border}`, borderRadius:8, padding:"8px 16px", cursor:step>0?"pointer":"default", fontSize:13, fontFamily:"Inter,sans-serif" }}>↩ Undo</button>
       </div>
 
+      {/* BO Locked notice */}
+      {boLockedIds.size > 0 && (
+        <div style={{ fontSize:10, color:C.textDim, marginBottom:6, padding:"4px 8px", background:"#f9731618", border:"1px solid #f9731633", borderRadius:6 }}>
+          🔒 ตัวที่ทีมเราเลือกในเกมก่อนแล้ว ({boLockedIds.size} ตัว) จะถูกล็อคไม่ให้เลือกซ้ำ
+        </div>
+      )}
+
       {/* Hero Grid */}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(60px,1fr))", gap:5, maxHeight:300, overflowY:"auto" }}>
         {filtered.map(h=>{
-          const isUsed=usedIds.has(h.id);
-          const isBanned=bannedIds.has(h.id);
-          const hasBlue=bluePicks.some(p=>p?.id===h.id);
-          const hasRed=redPicks.some(p=>p?.id===h.id);
+          const isUsed    = usedIds.has(h.id);
+          const isBanned  = bannedIds.has(h.id);
+          const isBoLocked = boLockedIds.has(h.id);
+          const isBlocked = isUsed || isBoLocked;
+          const hasBlue   = bluePicks.some(p=>p?.id===h.id);
+          const hasRed    = redPicks.some(p=>p?.id===h.id);
           return (
-            <div key={h.id} onClick={()=>pick(h)} style={{ borderRadius:8, overflow:"hidden", aspectRatio:"1", background:isUsed?`${h.color}0a`:`${h.color}18`, border:`2px solid ${isUsed?(isBanned?"#ef444444":hasBlue?C.blue+"66":C.red+"66"):"transparent"}`, opacity:isUsed?.35:1, cursor:isUsed?"default":"pointer", position:"relative", display:"flex", alignItems:"center", justifyContent:"center", transition:"transform .1s, border-color .1s" }}
-              onMouseEnter={e=>{ if(!isUsed) e.currentTarget.style.transform="scale(1.07)"; }}
+            <div key={h.id} onClick={()=>(!isBlocked)&&pick(h)} style={{ borderRadius:8, overflow:"hidden", aspectRatio:"1", background:isBlocked?`${h.color}08`:`${h.color}18`, border:`2px solid ${isBlocked?(isBoLocked?"#f9731644":isBanned?"#ef444444":hasBlue?C.blue+"66":C.red+"66"):"transparent"}`, opacity:isBlocked?.3:1, cursor:isBlocked?"default":"pointer", position:"relative", display:"flex", alignItems:"center", justifyContent:"center", transition:"transform .1s, border-color .1s" }}
+              onMouseEnter={e=>{ if(!isBlocked) e.currentTarget.style.transform="scale(1.07)"; }}
               onMouseLeave={e=>{ e.currentTarget.style.transform="scale(1)"; }}>
               {h.img
                 ? <img src={h.img} alt={h.name} style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover" }} />
@@ -499,6 +586,7 @@ function DraftBoard({ draft, setDraft, heroes }) {
               }
               <div style={{ position:"absolute", bottom:0, left:0, right:0, fontSize:7, textAlign:"center", background:"linear-gradient(transparent,#000c)", padding:"4px 2px 3px", color:"#eee", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{h.name}</div>
               {isBanned && <div style={{ position:"absolute", inset:0, background:"#0009", display:"flex", alignItems:"center", justifyContent:"center" }}><span style={{ fontSize:18, color:"#ef4444" }}>✕</span></div>}
+              {isBoLocked && !isUsed && <div style={{ position:"absolute", inset:0, background:"#f9731618", display:"flex", alignItems:"center", justifyContent:"center" }}><span style={{ fontSize:18 }}>🔒</span></div>}
               <div style={{ position:"absolute", top:2, right:2, fontSize:7, background:TIER_COLORS[h.tier]+"dd", color:"#000", borderRadius:3, padding:"0 3px", fontWeight:800 }}>{h.tier}</div>
             </div>
           );
