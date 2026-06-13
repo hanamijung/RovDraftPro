@@ -1,557 +1,505 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 
-// ==================== DEFAULT DATA ====================
+// ─── CONSTANTS ────────────────────────────────────────────────────────────────
 const DEFAULT_HEROES = [
-  { id: 1, name: "Airi", role: ["Assassin"], tier: "S", counters: [], counteredBy: [], synergy: [], emoji: "⚔️", color: "#e879f9" },
-  { id: 2, name: "Alice", role: ["Mage"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "🔮", color: "#818cf8" },
-  { id: 3, name: "Arthur", role: ["Tank"], tier: "B", counters: [], counteredBy: [], synergy: [], emoji: "🛡️", color: "#fbbf24" },
-  { id: 4, name: "Astrid", role: ["Warrior"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "🗡️", color: "#f472b6" },
-  { id: 5, name: "Batman", role: ["Assassin"], tier: "S", counters: [], counteredBy: [], synergy: [], emoji: "🦇", color: "#6366f1" },
-  { id: 6, name: "Butterfly", role: ["Assassin"], tier: "S+", counters: [], counteredBy: [], synergy: [], emoji: "🦋", color: "#34d399" },
-  { id: 7, name: "Capheny", role: ["Marksman"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "🤖", color: "#60a5fa" },
-  { id: 8, name: "Chaugnar", role: ["Support","Tank"], tier: "B", counters: [], counteredBy: [], synergy: [], emoji: "🐘", color: "#9ca3af" },
-  { id: 9, name: "Dirak", role: ["Mage"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "🌀", color: "#7c3aed" },
-  { id: 10, name: "D'Arcy", role: ["Mage"], tier: "S", counters: [], counteredBy: [], synergy: [], emoji: "🔥", color: "#fb923c" },
-  { id: 11, name: "Elsu", role: ["Marksman"], tier: "S", counters: [], counteredBy: [], synergy: [], emoji: "🏹", color: "#10b981" },
-  { id: 12, name: "Enzo", role: ["Tank"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "💎", color: "#f43f5e" },
-  { id: 13, name: "Errol", role: ["Support"], tier: "B", counters: [], counteredBy: [], synergy: [], emoji: "🐦", color: "#a78bfa" },
-  { id: 14, name: "Esmeralda", role: ["Mage","Tank"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "💧", color: "#2dd4bf" },
-  { id: 15, name: "Evelynn", role: ["Assassin"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "🌸", color: "#c084fc" },
-  { id: 16, name: "Florentino", role: ["Warrior"], tier: "S+", counters: [], counteredBy: [], synergy: [], emoji: "👑", color: "#fbbf24" },
-  { id: 17, name: "Grakk", role: ["Tank"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "🦖", color: "#4ade80" },
-  { id: 18, name: "Hayate", role: ["Assassin"], tier: "B", counters: [], counteredBy: [], synergy: [], emoji: "💨", color: "#38bdf8" },
-  { id: 19, name: "Ignis", role: ["Mage"], tier: "B", counters: [], counteredBy: [], synergy: [], emoji: "🔥", color: "#ef4444" },
-  { id: 20, name: "Ilumia", role: ["Mage"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "⭐", color: "#fde68a" },
-  { id: 21, name: "Jinnar", role: ["Mage"], tier: "S", counters: [], counteredBy: [], synergy: [], emoji: "⚡", color: "#7dd3fc" },
-  { id: 22, name: "Joker", role: ["Assassin"], tier: "S", counters: [], counteredBy: [], synergy: [], emoji: "🃏", color: "#a3e635" },
-  { id: 23, name: "Krixi", role: ["Mage"], tier: "B", counters: [], counteredBy: [], synergy: [], emoji: "🧚", color: "#f0abfc" },
-  { id: 24, name: "Kufra", role: ["Tank"], tier: "S", counters: [], counteredBy: [], synergy: [], emoji: "⛓️", color: "#6b7280" },
-  { id: 25, name: "Laville", role: ["Marksman"], tier: "S", counters: [], counteredBy: [], synergy: [], emoji: "🔫", color: "#93c5fd" },
-  { id: 26, name: "Lauriel", role: ["Mage"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "🌙", color: "#d8b4fe" },
-  { id: 27, name: "Lindis", role: ["Marksman"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "🦊", color: "#86efac" },
-  { id: 28, name: "Lu Bu", role: ["Warrior"], tier: "S+", counters: [], counteredBy: [], synergy: [], emoji: "🐉", color: "#dc2626" },
-  { id: 29, name: "Maloch", role: ["Tank","Warrior"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "👹", color: "#16a34a" },
-  { id: 30, name: "Mganga", role: ["Mage","Support"], tier: "B", counters: [], counteredBy: [], synergy: [], emoji: "🧙", color: "#65a30d" },
-  { id: 31, name: "Mina", role: ["Support"], tier: "S", counters: [], counteredBy: [], synergy: [], emoji: "🌟", color: "#fb7185" },
-  { id: 32, name: "Momo", role: ["Mage"], tier: "B", counters: [], counteredBy: [], synergy: [], emoji: "🐼", color: "#d1d5db" },
-  { id: 33, name: "Nakroth", role: ["Assassin"], tier: "S", counters: [], counteredBy: [], synergy: [], emoji: "😈", color: "#f87171" },
-  { id: 34, name: "Natalya", role: ["Mage"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "🌩️", color: "#818cf8" },
-  { id: 35, name: "Omega", role: ["Tank"], tier: "B", counters: [], counteredBy: [], synergy: [], emoji: "🤖", color: "#64748b" },
-  { id: 36, name: "Ormarr", role: ["Tank"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "🦍", color: "#854d0e" },
-  { id: 37, name: "Peura", role: ["Support"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "🦌", color: "#a3e635" },
-  { id: 38, name: "Raz", role: ["Warrior"], tier: "S", counters: [], counteredBy: [], synergy: [], emoji: "🌋", color: "#f97316" },
-  { id: 39, name: "Riktor", role: ["Tank"], tier: "B", counters: [], counteredBy: [], synergy: [], emoji: "⚙️", color: "#94a3b8" },
-  { id: 40, name: "Ryoma", role: ["Warrior"], tier: "S", counters: [], counteredBy: [], synergy: [], emoji: "⚔️", color: "#0ea5e9" },
-  { id: 41, name: "Skud", role: ["Warrior"], tier: "B", counters: [], counteredBy: [], synergy: [], emoji: "🐗", color: "#78716c" },
-  { id: 42, name: "Slimz", role: ["Assassin"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "🐊", color: "#22d3ee" },
-  { id: 43, name: "Taara", role: ["Warrior"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "🪓", color: "#f59e0b" },
-  { id: 44, name: "Tel'Annas", role: ["Marksman"], tier: "S", counters: [], counteredBy: [], synergy: [], emoji: "🍃", color: "#a3e635" },
-  { id: 45, name: "Thane", role: ["Tank"], tier: "S", counters: [], counteredBy: [], synergy: [], emoji: "🧊", color: "#60a5fa" },
-  { id: 46, name: "Tulen", role: ["Mage"], tier: "S+", counters: [], counteredBy: [], synergy: [], emoji: "⚡", color: "#fcd34d" },
-  { id: 47, name: "Valhein", role: ["Marksman"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "🎯", color: "#fb923c" },
-  { id: 48, name: "Violet", role: ["Marksman"], tier: "S", counters: [], counteredBy: [], synergy: [], emoji: "💜", color: "#c084fc" },
-  { id: 49, name: "Wiro", role: ["Warrior"], tier: "B", counters: [], counteredBy: [], synergy: [], emoji: "🌊", color: "#67e8f9" },
-  { id: 50, name: "Wonder Woman", role: ["Warrior","Tank"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "🦅", color: "#fde047" },
-  { id: 51, name: "Xeniel", role: ["Support","Tank"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "🕊️", color: "#e0f2fe" },
-  { id: 52, name: "Yorn", role: ["Marksman"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "🍃", color: "#4ade80" },
-  { id: 53, name: "Zata", role: ["Assassin"], tier: "B", counters: [], counteredBy: [], synergy: [], emoji: "🦞", color: "#38bdf8" },
-  { id: 54, name: "Zephys", role: ["Assassin"], tier: "S", counters: [], counteredBy: [], synergy: [], emoji: "💀", color: "#475569" },
-  { id: 55, name: "Zill", role: ["Mage"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "🌩️", color: "#818cf8" },
-  { id: 56, name: "Zip", role: ["Support"], tier: "S", counters: [], counteredBy: [], synergy: [], emoji: "🦒", color: "#fb923c" },
-  { id: 57, name: "Aleister", role: ["Support","Mage"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "🧟", color: "#a78bfa" },
-  { id: 58, name: "Annette", role: ["Support"], tier: "B", counters: [], counteredBy: [], synergy: [], emoji: "🎀", color: "#f9a8d4" },
-  { id: 59, name: "Baldum", role: ["Tank"], tier: "A", counters: [], counteredBy: [], synergy: [], emoji: "🐂", color: "#92400e" },
-  { id: 60, name: "Keera", role: ["Assassin"], tier: "S+", counters: [], counteredBy: [], synergy: [], emoji: "🐍", color: "#84cc16" },
+  { id:1,  name:"Airi",         role:["Assassin"],          tier:"S",  emoji:"⚔️",  color:"#e879f9" },
+  { id:2,  name:"Alice",        role:["Mage"],              tier:"A",  emoji:"🔮",  color:"#818cf8" },
+  { id:3,  name:"Arthur",       role:["Tank"],              tier:"B",  emoji:"🛡️",  color:"#fbbf24" },
+  { id:4,  name:"Astrid",       role:["Warrior"],           tier:"A",  emoji:"🗡️",  color:"#f472b6" },
+  { id:5,  name:"Batman",       role:["Assassin"],          tier:"S",  emoji:"🦇",  color:"#6366f1" },
+  { id:6,  name:"Butterfly",    role:["Assassin"],          tier:"S+", emoji:"🦋",  color:"#34d399" },
+  { id:7,  name:"Capheny",      role:["Marksman"],          tier:"A",  emoji:"🤖",  color:"#60a5fa" },
+  { id:8,  name:"Chaugnar",     role:["Support","Tank"],    tier:"B",  emoji:"🐘",  color:"#9ca3af" },
+  { id:9,  name:"Dirak",        role:["Mage"],              tier:"A",  emoji:"🌀",  color:"#7c3aed" },
+  { id:10, name:"D'Arcy",       role:["Mage"],              tier:"S",  emoji:"🔥",  color:"#fb923c" },
+  { id:11, name:"Elsu",         role:["Marksman"],          tier:"S",  emoji:"🏹",  color:"#10b981" },
+  { id:12, name:"Enzo",         role:["Tank"],              tier:"A",  emoji:"💎",  color:"#f43f5e" },
+  { id:13, name:"Errol",        role:["Support"],           tier:"B",  emoji:"🐦",  color:"#a78bfa" },
+  { id:14, name:"Esmeralda",    role:["Mage","Tank"],       tier:"A",  emoji:"💧",  color:"#2dd4bf" },
+  { id:15, name:"Evelynn",      role:["Assassin"],          tier:"A",  emoji:"🌸",  color:"#c084fc" },
+  { id:16, name:"Florentino",   role:["Warrior"],           tier:"S+", emoji:"👑",  color:"#fbbf24" },
+  { id:17, name:"Grakk",        role:["Tank"],              tier:"A",  emoji:"🦖",  color:"#4ade80" },
+  { id:18, name:"Hayate",       role:["Assassin"],          tier:"B",  emoji:"💨",  color:"#38bdf8" },
+  { id:19, name:"Ignis",        role:["Mage"],              tier:"B",  emoji:"🔥",  color:"#ef4444" },
+  { id:20, name:"Ilumia",       role:["Mage"],              tier:"A",  emoji:"⭐",  color:"#fde68a" },
+  { id:21, name:"Jinnar",       role:["Mage"],              tier:"S",  emoji:"⚡",  color:"#7dd3fc" },
+  { id:22, name:"Joker",        role:["Assassin"],          tier:"S",  emoji:"🃏",  color:"#a3e635" },
+  { id:23, name:"Krixi",        role:["Mage"],              tier:"B",  emoji:"🧚",  color:"#f0abfc" },
+  { id:24, name:"Kufra",        role:["Tank"],              tier:"S",  emoji:"⛓️",  color:"#6b7280" },
+  { id:25, name:"Laville",      role:["Marksman"],          tier:"S",  emoji:"🔫",  color:"#93c5fd" },
+  { id:26, name:"Lauriel",      role:["Mage"],              tier:"A",  emoji:"🌙",  color:"#d8b4fe" },
+  { id:27, name:"Lindis",       role:["Marksman"],          tier:"A",  emoji:"🦊",  color:"#86efac" },
+  { id:28, name:"Lu Bu",        role:["Warrior"],           tier:"S+", emoji:"🐉",  color:"#dc2626" },
+  { id:29, name:"Maloch",       role:["Tank","Warrior"],    tier:"A",  emoji:"👹",  color:"#16a34a" },
+  { id:30, name:"Mganga",       role:["Mage","Support"],    tier:"B",  emoji:"🧙",  color:"#65a30d" },
+  { id:31, name:"Mina",         role:["Support"],           tier:"S",  emoji:"🌟",  color:"#fb7185" },
+  { id:32, name:"Momo",         role:["Mage"],              tier:"B",  emoji:"🐼",  color:"#d1d5db" },
+  { id:33, name:"Nakroth",      role:["Assassin"],          tier:"S",  emoji:"😈",  color:"#f87171" },
+  { id:34, name:"Natalya",      role:["Mage"],              tier:"A",  emoji:"🌩️", color:"#818cf8" },
+  { id:35, name:"Omega",        role:["Tank"],              tier:"B",  emoji:"🤖",  color:"#64748b" },
+  { id:36, name:"Ormarr",       role:["Tank"],              tier:"A",  emoji:"🦍",  color:"#854d0e" },
+  { id:37, name:"Peura",        role:["Support"],           tier:"A",  emoji:"🦌",  color:"#a3e635" },
+  { id:38, name:"Raz",          role:["Warrior"],           tier:"S",  emoji:"🌋",  color:"#f97316" },
+  { id:39, name:"Riktor",       role:["Tank"],              tier:"B",  emoji:"⚙️",  color:"#94a3b8" },
+  { id:40, name:"Ryoma",        role:["Warrior"],           tier:"S",  emoji:"⚔️",  color:"#0ea5e9" },
+  { id:41, name:"Skud",         role:["Warrior"],           tier:"B",  emoji:"🐗",  color:"#78716c" },
+  { id:42, name:"Slimz",        role:["Assassin"],          tier:"A",  emoji:"🐊",  color:"#22d3ee" },
+  { id:43, name:"Taara",        role:["Warrior"],           tier:"A",  emoji:"🪓",  color:"#f59e0b" },
+  { id:44, name:"Tel'Annas",    role:["Marksman"],          tier:"S",  emoji:"🍃",  color:"#a3e635" },
+  { id:45, name:"Thane",        role:["Tank"],              tier:"S",  emoji:"🧊",  color:"#60a5fa" },
+  { id:46, name:"Tulen",        role:["Mage"],              tier:"S+", emoji:"⚡",  color:"#fcd34d" },
+  { id:47, name:"Valhein",      role:["Marksman"],          tier:"A",  emoji:"🎯",  color:"#fb923c" },
+  { id:48, name:"Violet",       role:["Marksman"],          tier:"S",  emoji:"💜",  color:"#c084fc" },
+  { id:49, name:"Wiro",         role:["Warrior"],           tier:"B",  emoji:"🌊",  color:"#67e8f9" },
+  { id:50, name:"Wonder Woman", role:["Warrior","Tank"],    tier:"A",  emoji:"🦅",  color:"#fde047" },
+  { id:51, name:"Xeniel",       role:["Support","Tank"],    tier:"A",  emoji:"🕊️",  color:"#e0f2fe" },
+  { id:52, name:"Yorn",         role:["Marksman"],          tier:"A",  emoji:"🍃",  color:"#4ade80" },
+  { id:53, name:"Zata",         role:["Assassin"],          tier:"B",  emoji:"🦞",  color:"#38bdf8" },
+  { id:54, name:"Zephys",       role:["Assassin"],          tier:"S",  emoji:"💀",  color:"#475569" },
+  { id:55, name:"Zill",         role:["Mage"],              tier:"A",  emoji:"🌩️", color:"#818cf8" },
+  { id:56, name:"Zip",          role:["Support"],           tier:"S",  emoji:"🦒",  color:"#fb923c" },
+  { id:57, name:"Aleister",     role:["Support","Mage"],    tier:"A",  emoji:"🧟",  color:"#a78bfa" },
+  { id:58, name:"Annette",      role:["Support"],           tier:"B",  emoji:"🎀",  color:"#f9a8d4" },
+  { id:59, name:"Baldum",       role:["Tank"],              tier:"A",  emoji:"🐂",  color:"#92400e" },
+  { id:60, name:"Keera",        role:["Assassin"],          tier:"S+", emoji:"🐍",  color:"#84cc16" },
 ];
 
 const TIERS = ["S+","S","A","B","C","D"];
 const ROLES = ["Tank","Warrior","Assassin","Mage","Marksman","Support"];
 const TIER_COLORS = { "S+":"#f97316","S":"#eab308","A":"#22c55e","B":"#3b82f6","C":"#8b5cf6","D":"#6b7280" };
+const ROLE_COLORS = { Tank:"#60a5fa",Warrior:"#f97316",Assassin:"#a78bfa",Mage:"#818cf8",Marksman:"#34d399",Support:"#f472b6" };
 
-// ─────────────────────────────────────────────
-// RANKED  (ban 3 each)
-// ─────────────────────────────────────────────
+// ─── DRAFT ORDERS ─────────────────────────────────────────────────────────────
 const RANKED_ORDER = [
-  {phase:'ban', team:'blue', slot:0}, {phase:'ban', team:'red',  slot:0},
-  {phase:'ban', team:'blue', slot:1}, {phase:'ban', team:'red',  slot:1},
-  {phase:'ban', team:'blue', slot:2}, {phase:'ban', team:'red',  slot:2},
-  {phase:'pick', team:'blue', slot:0},
-  {phase:'pick', team:'red',  slot:0}, {phase:'pick', team:'red',  slot:1},
-  {phase:'pick', team:'blue', slot:1}, {phase:'pick', team:'blue', slot:2},
-  {phase:'pick', team:'red',  slot:2}, {phase:'pick', team:'red',  slot:3},
-  {phase:'pick', team:'blue', slot:3}, {phase:'pick', team:'blue', slot:4},
-  {phase:'pick', team:'red',  slot:4},
+  {phase:"ban",team:"blue",slot:0},{phase:"ban",team:"red",slot:0},
+  {phase:"ban",team:"blue",slot:1},{phase:"ban",team:"red",slot:1},
+  {phase:"ban",team:"blue",slot:2},{phase:"ban",team:"red",slot:2},
+  {phase:"pick",team:"blue",slot:0},
+  {phase:"pick",team:"red",slot:0},{phase:"pick",team:"red",slot:1},
+  {phase:"pick",team:"blue",slot:1},{phase:"pick",team:"blue",slot:2},
+  {phase:"pick",team:"red",slot:2},{phase:"pick",team:"red",slot:3},
+  {phase:"pick",team:"blue",slot:3},{phase:"pick",team:"blue",slot:4},
+  {phase:"pick",team:"red",slot:4},
+];
+const TOURNAMENT_ORDER = [
+  {phase:"ban",team:"blue",slot:0},{phase:"ban",team:"red",slot:0},
+  {phase:"ban",team:"blue",slot:1},{phase:"ban",team:"red",slot:1},
+  {phase:"pick",team:"blue",slot:0},
+  {phase:"pick",team:"red",slot:0},{phase:"pick",team:"red",slot:1},
+  {phase:"pick",team:"blue",slot:1},{phase:"pick",team:"blue",slot:2},
+  {phase:"pick",team:"red",slot:2},
+  {phase:"ban",team:"red",slot:2},{phase:"ban",team:"blue",slot:2},
+  {phase:"ban",team:"red",slot:3},{phase:"ban",team:"blue",slot:3},
+  {phase:"pick",team:"red",slot:3},
+  {phase:"pick",team:"blue",slot:3},{phase:"pick",team:"blue",slot:4},
+  {phase:"pick",team:"red",slot:4},
 ];
 
-// ─────────────────────────────────────────────
-// TOURNAMENT  (ROV APL real format)
-//
-// Ban Phase 1  : B → R → B → R
-// Pick Phase 1 : B(1) → R(1) → R(2) → B(2) → B(3) → R(3)  ← เบลอสลับ
-//   wait — user confirmed:
-//   Pick Phase 1 : Blue1 → Red2 → Blue2 → Red1
-//   meaning Blue picks slot0, Red picks slot1, Blue picks slot1, Red picks slot0?
-//   Re-read: "Blue 1 -> Red 2 -> Blue 2 -> Red 1"
-//   = Blue slot0, Red slot1+slot0 two in a row? No.
-//   User means: position labels (1st pick of that team, 2nd pick of that team)
-//   Blue1 = blue slot0, Red2 = red slot1, Blue2 = blue slot1, Red1 = red slot0
-//   → B0 → R1 → B1 → R0  ... then continue:
-//   Actually standard ROV Pick1 is: B→RR→BB→R = B0,R0,R1,B1,B2,R2
-//   User wrote "Blue 1 -> Red 2 -> Blue 2 -> Red 1" as shorthand for first 4 steps
-//   meaning Blue goes 1st, Red gets 2 back-to-back, Blue gets 2, Red gets 1 last
-//   = B0 → R0 R1 → B1 B2 → R2  (standard 1-2-2-1 snake)
-//
-// Pick Phase 2 : "Red 1 -> Blue 2 -> Red 1"
-//   = R3 → B3 B4 → R4  (1-2-1 snake, Red starts)
-//
-// Ban Phase 2  : R → B → R → B  (Red starts)
-// ─────────────────────────────────────────────
-const TOURNAMENT_ORDER_FIXED = [
-  // ── Ban Phase 1: B R B R ──
-  {phase:'ban', team:'blue', slot:0},
-  {phase:'ban', team:'red',  slot:0},
-  {phase:'ban', team:'blue', slot:1},
-  {phase:'ban', team:'red',  slot:1},
-
-  // ── Pick Phase 1: B → RR → BB → R  (1-2-2-1) ──
-  {phase:'pick', team:'blue', slot:0},
-  {phase:'pick', team:'red',  slot:0},
-  {phase:'pick', team:'red',  slot:1},
-  {phase:'pick', team:'blue', slot:1},
-  {phase:'pick', team:'blue', slot:2},
-  {phase:'pick', team:'red',  slot:2},
-
-  // ── Ban Phase 2: R B R B ──
-  {phase:'ban', team:'red',  slot:2},
-  {phase:'ban', team:'blue', slot:2},
-  {phase:'ban', team:'red',  slot:3},
-  {phase:'ban', team:'blue', slot:3},
-
-  // ── Pick Phase 2: R → BB → R  (1-2-1) ──
-  {phase:'pick', team:'red',  slot:3},
-  {phase:'pick', team:'blue', slot:3},
-  {phase:'pick', team:'blue', slot:4},
-  {phase:'pick', team:'red',  slot:4},
-];
-
-// ==================== API CONFIG ====================
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
-
-// normalize hero from MongoDB (_id → id, imgUrl → img path)
+// ─── API ──────────────────────────────────────────────────────────────────────
+const API_BASE = (typeof import !== "undefined" && import.meta?.env?.VITE_API_URL) || "http://localhost:4000";
 function normalizeHero(h) {
-  return {
-    ...h,
-    id: h._id || h.id,
-    img: h.imgUrl ? `${API_BASE}${h.imgUrl}` : (h.img || ""),
-  };
+  return { ...h, id: h._id||h.id, img: h.imgUrl ? `${API_BASE}${h.imgUrl}` : (h.img||"") };
 }
 
-async function apiFetch(path, opts = {}) {
-  const res = await fetch(`${API_BASE}${path}`, opts);
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error(err.error || res.statusText);
-  }
-  return res.json();
+// ─── DESIGN TOKENS ────────────────────────────────────────────────────────────
+const C = {
+  bg:        "#060914",
+  bgCard:    "#0d1525",
+  bgHover:   "#111d33",
+  border:    "#1e2a40",
+  borderHi:  "#2a3d58",
+  gold:      "#C9A84C",
+  goldDim:   "#8a6e2e",
+  blue:      "#3B82F6",
+  red:       "#EF4444",
+  text:      "#E2E8F0",
+  textDim:   "#64748B",
+  textMuted: "#334155",
+};
+
+const S = {
+  card: { background:C.bgCard, borderRadius:12, border:`1px solid ${C.border}` },
+  goldText: { color:C.gold, fontWeight:600 },
+  label: { fontSize:10, letterSpacing:"0.1em", textTransform:"uppercase", color:C.textDim, fontWeight:500 },
+};
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function getTierVal(t) { return {"S+":10,"S":8,"A":6,"B":4,"C":2,"D":1}[t]||4; }
+function getAvgScore(arr) {
+  if (!arr.length) return 0;
+  return Math.round(arr.reduce((s,h)=>s+getTierVal(h.tier),0)/arr.length*10)/10;
 }
 
-// ==================== MAIN APP ====================
+// ─── GLOBAL STYLES ────────────────────────────────────────────────────────────
+const GLOBAL_CSS = `
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:${C.bg};color:${C.text};font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+  ::-webkit-scrollbar{width:4px;height:4px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:${C.border};border-radius:2px;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+  @keyframes glow{0%,100%{box-shadow:0 0 8px 1px ${C.gold}44}50%{box-shadow:0 0 16px 3px ${C.gold}77}}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+  .active-slot{animation:glow 1.4s ease-in-out infinite;}
+  .fade-in{animation:fadeIn .2s ease forwards;}
+  input[type=text],input[type=color]{font-family:'Inter',sans-serif;}
+  select{font-family:'Inter',sans-serif;}
+`;
+
+// ─── APP ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const [page, setPage] = useState("draft");
-  const [heroes, setHeroes] = useState([]);
+  const [heroes, setHeroes] = useState(DEFAULT_HEROES);
   const [loading, setLoading] = useState(true);
-  const [apiError, setApiError] = useState("");
   const [adminTab, setAdminTab] = useState("heroes");
 
-  // ── Load heroes from API on mount ──
   useEffect(() => {
-    fetchHeroes();
+    fetch(`${API_BASE}/api/heroes`)
+      .then(r=>r.json())
+      .then(d=>{ if(d?.length) setHeroes(d.map(normalizeHero)); })
+      .catch(()=>{})
+      .finally(()=>setLoading(false));
   }, []);
 
-  async function fetchHeroes() {
-    setLoading(true);
-    setApiError("");
-    try {
-      const data = await apiFetch("/api/heroes");
-      setHeroes(data.map(normalizeHero));
-    } catch (err) {
-      setApiError("❌ เชื่อมต่อ Server ไม่ได้: " + err.message);
-      // Fallback to default heroes so the app still works offline
-      setHeroes(DEFAULT_HEROES);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   if (loading) return (
-    <div style={{ background:"#0a0e1a", minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column", gap:12 }}>
-      <div style={{ fontSize:32 }}>⚔️</div>
-      <div style={{ color:"#c8a84b", fontSize:14, letterSpacing:2 }}>กำลังโหลดข้อมูล...</div>
+    <div style={{ background:C.bg, minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column", gap:16, fontFamily:"Inter,sans-serif" }}>
+      <style>{GLOBAL_CSS}</style>
+      <div style={{ fontSize:40 }}>⚔️</div>
+      <div style={{ color:C.gold, letterSpacing:"0.2em", fontSize:13, fontFamily:"Rajdhani,sans-serif" }}>LOADING...</div>
     </div>
   );
 
   return (
-    <div style={{ background: "#0a0e1a", minHeight: "100vh", color: "#fff", fontFamily: "'Segoe UI',sans-serif" }}>
-      {/* NAV */}
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"10px 20px", borderBottom:"1px solid #1e2a3a", background:"#060911" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-          <span style={{ fontSize:20, color:"#c8a84b", fontWeight:700, letterSpacing:2 }}>⚔️ ROV DRAFT PRO</span>
-        </div>
-        <div style={{ display:"flex", gap:8, alignItems:"center" }}>
-          {apiError && <span style={{ fontSize:10, color:"#f87171", maxWidth:200, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }} title={apiError}>⚠️ Offline mode</span>}
-          <NavBtn active={page==="draft"} onClick={()=>setPage("draft")}>🎮 Draft</NavBtn>
-          <NavBtn active={page==="admin"} onClick={()=>setPage("admin")}>⚙️ Admin</NavBtn>
-        </div>
+    <>
+      <style>{GLOBAL_CSS}</style>
+      <div style={{ background:C.bg, minHeight:"100vh", color:C.text }}>
+        <Nav page={page} setPage={setPage} />
+        {page==="draft" && <DraftPage heroes={heroes} />}
+        {page==="admin" && <AdminPage heroes={heroes} setHeroes={setHeroes} adminTab={adminTab} setAdminTab={setAdminTab} />}
       </div>
+    </>
+  );
+}
 
-      {page === "draft" && <DraftPage heroes={heroes} />}
-      {page === "admin" && <AdminPage heroes={heroes} setHeroes={setHeroes} fetchHeroes={fetchHeroes} adminTab={adminTab} setAdminTab={setAdminTab} apiBase={API_BASE} />}
+// ─── NAV ──────────────────────────────────────────────────────────────────────
+function Nav({ page, setPage }) {
+  return (
+    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 20px", height:56, borderBottom:`1px solid ${C.border}`, background:"#04060e", position:"sticky", top:0, zIndex:100 }}>
+      <div style={{ fontFamily:"Rajdhani,sans-serif", fontSize:20, fontWeight:700, color:C.gold, letterSpacing:"0.15em", display:"flex", alignItems:"center", gap:8 }}>
+        <span>⚔</span> ROV DRAFT PRO
+      </div>
+      <div style={{ display:"flex", gap:4 }}>
+        {[["draft","🎮 Draft"],["admin","⚙ Admin"]].map(([k,l])=>(
+          <button key={k} onClick={()=>setPage(k)} style={{ background:page===k?`${C.gold}15`:"transparent", color:page===k?C.gold:C.textDim, border:`1px solid ${page===k?C.goldDim+"66":"transparent"}`, borderRadius:8, padding:"6px 18px", cursor:"pointer", fontSize:13, fontWeight:page===k?600:400, fontFamily:"Inter,sans-serif", transition:"all .15s" }}>{l}</button>
+        ))}
+      </div>
     </div>
   );
 }
 
-function NavBtn({ active, onClick, children }) {
-  return (
-    <button onClick={onClick} style={{
-      background: active ? "#c8a84b22" : "transparent",
-      color: active ? "#c8a84b" : "#888",
-      border: `1px solid ${active ? "#c8a84b55" : "#2a3040"}`,
-      borderRadius: 6, padding: "6px 16px", cursor: "pointer", fontSize: 13, fontWeight: active ? 600 : 400
-    }}>{children}</button>
-  );
-}
-
-// ==================== DRAFT PAGE ====================
-// Setup flow: mode → (bo) → side → teamNames → draft
+// ─── DRAFT PAGE ───────────────────────────────────────────────────────────────
 function DraftPage({ heroes }) {
-  const [screen, setScreen] = useState("mode"); // mode | bo | side | draft
+  const [screen, setScreen] = useState("mode");
   const [mode, setMode] = useState(null);
   const [bo, setBo] = useState(3);
-  const [mySide, setMySide] = useState("blue"); // "blue"=First Pick, "red"=Second Pick
+  const [mySide, setMySide] = useState("blue");
   const [myName, setMyName] = useState("ทีมเรา");
   const [enemyName, setEnemyName] = useState("ทีมศัตรู");
   const [game, setGame] = useState(1);
-  const [draftState, setDraftState] = useState(null);
+  const [draft, setDraft] = useState(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
 
-  // blue = First Pick (picks first), red = Second Pick
   function initDraft(order, side, myN, enemyN) {
-    const banCount = order.filter(o => o.phase === "ban").length / 2;
-    // "blue" slot in order = First Pick side = mySide
-    const blueLabel = side === "blue" ? (myN||"ทีมเรา") : (enemyN||"ทีมศัตรู");
-    const redLabel  = side === "blue" ? (enemyN||"ทีมศัตรู") : (myN||"ทีมเรา");
-    setDraftState({
+    const bansPerTeam = Math.max(...order.filter(o=>o.phase==="ban").map(o=>o.slot)) + 1;
+    setDraft({
       order, step:0,
-      blueBans:  Array(banCount).fill(null),
-      redBans:   Array(banCount).fill(null),
+      blueBans:  Array(bansPerTeam).fill(null),
+      redBans:   Array(bansPerTeam).fill(null),
       bluePicks: Array(5).fill(null),
       redPicks:  Array(5).fill(null),
-      blueLabel, redLabel,
-      mySide: side,  // which slot key is "our team"
+      blueLabel: side==="blue"?(myN||"ทีมเรา"):(enemyN||"ทีมศัตรู"),
+      redLabel:  side==="blue"?(enemyN||"ทีมศัตรู"):(myN||"ทีมเรา"),
+      mySide: side,
     });
-  }
-
-  function startDraft() {
-    const order = mode === "ranked" ? RANKED_ORDER : TOURNAMENT_ORDER_FIXED;
-    initDraft(order, mySide, myName, enemyName);
-    setScreen("draft");
     setShowAnalysis(false);
   }
 
+  function start() { initDraft(mode==="ranked"?RANKED_ORDER:TOURNAMENT_ORDER, mySide, myName, enemyName); setScreen("draft"); }
   function nextGame() {
-    const order = TOURNAMENT_ORDER_FIXED;
-    // sides swap each game
-    const nextSide = mySide === "blue" ? "red" : "blue";
-    setMySide(nextSide);
-    setGame(g => g+1);
-    initDraft(order, nextSide, myName, enemyName);
-    setShowAnalysis(false);
+    const ns = mySide==="blue"?"red":"blue";
+    setMySide(ns); setGame(g=>g+1);
+    initDraft(TOURNAMENT_ORDER, ns, myName, enemyName);
   }
 
-  // ── SCREEN: mode ──
-  if (screen === "mode") return (
-    <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight:"80vh", gap:24 }}>
-      <div style={{ fontSize:28, fontWeight:700, color:"#c8a84b", letterSpacing:3 }}>SELECT MODE</div>
-      <div style={{ display:"flex", gap:20, flexWrap:"wrap", justifyContent:"center" }}>
-        <ModeCard icon="🏆" title="Tournament" desc="Ban2 → Pick3 → Ban1 → Pick2" onClick={()=>{ setMode("tournament"); setScreen("bo"); }} color="#f97316" />
-        <ModeCard icon="⚡" title="Ranked" desc="แบนฝั่งละ 3 ตัว · 1 เกม" onClick={()=>{ setMode("ranked"); setScreen("side"); }} color="#3b82f6" />
+  // MODE SELECT
+  if (screen==="mode") return (
+    <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight:"calc(100vh - 56px)", gap:32, padding:24 }}>
+      <div style={{ fontFamily:"Rajdhani,sans-serif", fontSize:28, fontWeight:700, color:C.gold, letterSpacing:"0.2em" }}>SELECT MODE</div>
+      <div style={{ display:"flex", gap:16, flexWrap:"wrap", justifyContent:"center" }}>
+        <ModeCard icon="🏆" title="Tournament" sub="Ban 2→Pick→Ban 2→Pick · BO Series" color="#f97316" onClick={()=>{ setMode("tournament"); setScreen("bo"); }} />
+        <ModeCard icon="⚡" title="Ranked"     sub="แบนฝั่งละ 3 · 1 เกม"              color="#3b82f6" onClick={()=>{ setMode("ranked");     setScreen("side"); }} />
       </div>
     </div>
   );
 
-  // ── SCREEN: bo ──
-  if (screen === "bo") return (
-    <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight:"80vh", gap:24 }}>
-      <StepBack onClick={()=>setScreen("mode")} />
-      <div style={{ fontSize:22, fontWeight:700, color:"#c8a84b" }}>🏆 BEST OF</div>
-      <div style={{ display:"flex", gap:16 }}>
+  // BO SELECT
+  if (screen==="bo") return (
+    <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight:"calc(100vh - 56px)", gap:24, padding:24 }}>
+      <BackBtn onClick={()=>setScreen("mode")} />
+      <div style={{ fontFamily:"Rajdhani,sans-serif", fontSize:26, fontWeight:700, color:C.gold, letterSpacing:"0.2em" }}>BEST OF</div>
+      <div style={{ display:"flex", gap:12 }}>
         {[3,5,7].map(b=>(
-          <button key={b} onClick={()=>{ setBo(b); setScreen("side"); }} style={{ background:"#1e2435", color:"#fff", border:"2px solid #c8a84b55", borderRadius:12, padding:"20px 36px", fontSize:28, fontWeight:700, cursor:"pointer" }}>BO{b}</button>
+          <button key={b} onClick={()=>{ setBo(b); setScreen("side"); }} style={{ background:C.bgCard, color:C.text, border:`2px solid ${C.border}`, borderRadius:12, padding:"20px 40px", fontSize:32, fontWeight:700, cursor:"pointer", fontFamily:"Rajdhani,sans-serif", transition:"all .15s" }}
+            onMouseEnter={e=>{ e.currentTarget.style.borderColor=C.gold; e.currentTarget.style.color=C.gold; }}
+            onMouseLeave={e=>{ e.currentTarget.style.borderColor=C.border; e.currentTarget.style.color=C.text; }}>
+            BO{b}
+          </button>
         ))}
       </div>
     </div>
   );
 
-  // ── SCREEN: side ──
-  if (screen === "side") return (
-    <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight:"80vh", gap:20 }}>
-      <StepBack onClick={()=>setScreen(mode==="tournament"?"bo":"mode")} />
-      <div style={{ fontSize:22, fontWeight:700, color:"#c8a84b" }}>เลือกฝั่งของทีมเรา</div>
-      <div style={{ display:"flex", gap:16 }}>
-        <SideCard
-          icon="🔵" title="First Pick" sub="บานและ Pick ก่อน"
-          active={mySide==="blue"} color="#4a9eff"
-          onClick={()=>setMySide("blue")}
-        />
-        <SideCard
-          icon="🔴" title="Second Pick" sub="บานและ Pick หลัง"
-          active={mySide==="red"} color="#ff5555"
-          onClick={()=>setMySide("red")}
-        />
+  // SIDE SELECT
+  if (screen==="side") return (
+    <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight:"calc(100vh - 56px)", gap:24, padding:24 }}>
+      <BackBtn onClick={()=>setScreen(mode==="tournament"?"bo":"mode")} />
+      <div style={{ fontFamily:"Rajdhani,sans-serif", fontSize:24, fontWeight:700, color:C.gold, letterSpacing:"0.15em" }}>เลือกฝั่งทีมเรา</div>
+      <div style={{ display:"flex", gap:12 }}>
+        <SideCard icon="🔵" title="First Pick" sub="Ban & Pick ก่อน" color={C.blue}  active={mySide==="blue"} onClick={()=>setMySide("blue")} />
+        <SideCard icon="🔴" title="Second Pick" sub="Ban & Pick หลัง" color={C.red}  active={mySide==="red"}  onClick={()=>setMySide("red")} />
       </div>
-      {/* Team name inputs */}
-      <div style={{ display:"flex", gap:12, flexWrap:"wrap", justifyContent:"center", marginTop:8 }}>
-        <div>
-          <div style={{ fontSize:11, color: mySide==="blue"?"#4a9eff":"#ff5555", marginBottom:4 }}>ชื่อทีมเรา</div>
-          <input value={myName} onChange={e=>setMyName(e.target.value)} placeholder="ทีมเรา" style={{ background:"#111827", border:`1px solid ${mySide==="blue"?"#4a9eff55":"#ff555555"}`, borderRadius:7, padding:"8px 12px", color:"#fff", fontSize:13, outline:"none", width:160 }} />
-        </div>
-        <div>
-          <div style={{ fontSize:11, color: mySide==="blue"?"#ff5555":"#4a9eff", marginBottom:4 }}>ชื่อทีมศัตรู</div>
-          <input value={enemyName} onChange={e=>setEnemyName(e.target.value)} placeholder="ทีมศัตรู" style={{ background:"#111827", border:`1px solid ${mySide==="blue"?"#ff555555":"#4a9eff55"}`, borderRadius:7, padding:"8px 12px", color:"#fff", fontSize:13, outline:"none", width:160 }} />
-        </div>
+      <div style={{ display:"flex", gap:12, flexWrap:"wrap", justifyContent:"center" }}>
+        <LabelInput label="ชื่อทีมเรา" value={myName} color={mySide==="blue"?C.blue:C.red} onChange={e=>setMyName(e.target.value)} />
+        <LabelInput label="ชื่อทีมศัตรู" value={enemyName} color={mySide==="blue"?C.red:C.blue} onChange={e=>setEnemyName(e.target.value)} />
       </div>
-      <button onClick={startDraft} style={{ background:"#c8a84b", color:"#000", border:"none", borderRadius:10, padding:"12px 40px", fontSize:16, fontWeight:700, cursor:"pointer", marginTop:8 }}>
-        ▶ เริ่ม Draft
-      </button>
-      {/* Summary */}
-      <div style={{ fontSize:11, color:"#555", textAlign:"center" }}>
-        {mode==="tournament"?`BO${bo} · `:"Ranked · "}
-        ทีมเรา ({myName}) = <span style={{ color:mySide==="blue"?"#4a9eff":"#ff5555" }}>{mySide==="blue"?"First Pick 🔵":"Second Pick 🔴"}</span>
-      </div>
+      <button onClick={start} style={{ background:C.gold, color:"#000", border:"none", borderRadius:10, padding:"14px 48px", fontSize:16, fontWeight:700, cursor:"pointer", fontFamily:"Rajdhani,sans-serif", letterSpacing:"0.1em" }}>▶ เริ่ม Draft</button>
+      <div style={{ fontSize:11, color:C.textDim }}>{mode==="tournament"?`BO${bo} · `:""}{myName} = <span style={{ color:mySide==="blue"?C.blue:C.red }}>{mySide==="blue"?"First Pick":"Second Pick"}</span></div>
     </div>
   );
 
-  // ── SCREEN: draft ──
+  // DRAFT SCREEN
   return (
-    <div style={{ padding:"12px 16px" }}>
-      {/* Header bar */}
-      <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10 }}>
-        <button onClick={()=>{ setScreen("mode"); setDraftState(null); setGame(1); }} style={{ background:"transparent", color:"#888", border:"1px solid #333", borderRadius:6, padding:"4px 12px", cursor:"pointer", fontSize:12 }}>← ออก</button>
-        <span style={{ color:"#c8a84b", fontWeight:600, fontSize:14 }}>
-          {mode === "ranked" ? "⚡ RANKED" : `🏆 TOURNAMENT BO${bo}`}
-          {mode === "tournament" && ` · เกมที่ ${game}/${bo}`}
-        </span>
-        <span style={{ fontSize:10, color: mySide==="blue"?"#4a9eff":"#ff5555", background: mySide==="blue"?"#4a9eff22":"#ff555522", border:`1px solid ${mySide==="blue"?"#4a9eff44":"#ff555544"}`, borderRadius:4, padding:"2px 8px" }}>
-          {myName} = {mySide==="blue"?"First Pick 🔵":"Second Pick 🔴"}
-        </span>
-        {mode === "tournament" && draftState?.step >= draftState?.order?.length && (
-          <div style={{ display:"flex", gap:8, marginLeft:"auto" }}>
-            {game < bo && <button onClick={nextGame} style={{ background:"#c8a84b22", color:"#c8a84b", border:"1px solid #c8a84b55", borderRadius:6, padding:"4px 16px", cursor:"pointer", fontSize:12 }}>เกมถัดไป (สลับฝั่ง) →</button>}
-            <button onClick={()=>{ setGame(1); setScreen("mode"); setDraftState(null); }} style={{ background:"transparent", color:"#f87171", border:"1px solid #f8717155", borderRadius:6, padding:"4px 12px", cursor:"pointer", fontSize:12 }}>จบ BO</button>
-          </div>
-        )}
+    <div style={{ padding:"12px 16px", maxWidth:900, margin:"0 auto" }}>
+      {/* Header */}
+      <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12, flexWrap:"wrap" }}>
+        <BackBtn onClick={()=>{ setScreen("mode"); setDraft(null); setGame(1); }} label="ออก" />
+        <div style={{ fontFamily:"Rajdhani,sans-serif", fontWeight:700, fontSize:15, color:C.gold, letterSpacing:"0.1em" }}>
+          {mode==="ranked"?"⚡ RANKED":`🏆 TOURNAMENT BO${bo}`}
+          {mode==="tournament" && <span style={{ color:C.textDim }}> · เกมที่ {game}/{bo}</span>}
+        </div>
+        <div style={{ marginLeft:4, fontSize:11, background:`${mySide==="blue"?C.blue:C.red}22`, color:mySide==="blue"?C.blue:C.red, border:`1px solid ${mySide==="blue"?C.blue:C.red}44`, borderRadius:5, padding:"2px 8px" }}>
+          {myName} = {mySide==="blue"?"First 🔵":"Second 🔴"}
+        </div>
         <div style={{ marginLeft:"auto", display:"flex", gap:8 }}>
-          {draftState?.step >= draftState?.order?.length && (
-            <button onClick={()=>setShowAnalysis(a=>!a)} style={{ background: showAnalysis?"#22c55e22":"#1e2435", color: showAnalysis?"#22c55e":"#aaa", border:`1px solid ${showAnalysis?"#22c55e55":"#333"}`, borderRadius:6, padding:"4px 14px", cursor:"pointer", fontSize:12 }}>
-              📊 {showAnalysis?"ซ่อน":"วิเคราะห์"}
-            </button>
+          {mode==="tournament" && draft?.step>=draft?.order?.length && game<bo && (
+            <button onClick={nextGame} style={{ background:`${C.gold}20`, color:C.gold, border:`1px solid ${C.goldDim}`, borderRadius:7, padding:"5px 14px", cursor:"pointer", fontSize:12 }}>สลับฝั่ง →</button>
           )}
-          <button onClick={()=>{ initDraft(mode==="ranked"?RANKED_ORDER:TOURNAMENT_ORDER_FIXED, mySide, myName, enemyName); setShowAnalysis(false); }} style={{ background:"#1e2435", color:"#f87171", border:"1px solid #f8717155", borderRadius:6, padding:"4px 12px", cursor:"pointer", fontSize:12 }}>🔄 Reset</button>
+          {draft?.step>=draft?.order?.length && (
+            <button onClick={()=>setShowAnalysis(a=>!a)} style={{ background:showAnalysis?"#22c55e22":"transparent", color:showAnalysis?"#22c55e":C.textDim, border:`1px solid ${showAnalysis?"#22c55e44":C.border}`, borderRadius:7, padding:"5px 14px", cursor:"pointer", fontSize:12 }}>📊 วิเคราะห์</button>
+          )}
+          <button onClick={()=>{ initDraft(mode==="ranked"?RANKED_ORDER:TOURNAMENT_ORDER,mySide,myName,enemyName); }} style={{ background:"transparent", color:"#ef4444", border:`1px solid #ef444433`, borderRadius:7, padding:"5px 12px", cursor:"pointer", fontSize:12 }}>↺ Reset</button>
         </div>
       </div>
 
-      {draftState && (
-        <>
-          <DraftBoard draftState={draftState} setDraftState={setDraftState} heroes={heroes} mode={mode} />
-          {showAnalysis && <DraftAnalysis draftState={draftState} heroes={heroes} />}
-        </>
-      )}
+      {draft && <DraftBoard draft={draft} setDraft={setDraft} heroes={heroes} />}
+      {showAnalysis && draft && <DraftAnalysis draft={draft} heroes={heroes} />}
     </div>
   );
 }
 
-function ModeCard({ icon, title, desc, onClick, color }) {
+function ModeCard({ icon, title, sub, color, onClick }) {
   return (
-    <div onClick={onClick} style={{
-      background:"#111827", border:`2px solid ${color}44`, borderRadius:16,
-      padding:"32px 40px", cursor:"pointer", textAlign:"center", transition:"all 0.15s",
-      minWidth:180
-    }}
-    onMouseEnter={e=>{ e.currentTarget.style.borderColor=color; e.currentTarget.style.background="#1e2435"; }}
-    onMouseLeave={e=>{ e.currentTarget.style.borderColor=`${color}44`; e.currentTarget.style.background="#111827"; }}>
-      <div style={{ fontSize:40 }}>{icon}</div>
-      <div style={{ fontSize:18, fontWeight:700, color:"#fff", marginTop:8 }}>{title}</div>
-      <div style={{ fontSize:12, color:"#888", marginTop:4 }}>{desc}</div>
+    <div onClick={onClick} style={{ ...S.card, padding:"28px 36px", cursor:"pointer", textAlign:"center", minWidth:180, transition:"all .15s" }}
+      onMouseEnter={e=>{ e.currentTarget.style.borderColor=color+"88"; e.currentTarget.style.background=color+"11"; }}
+      onMouseLeave={e=>{ e.currentTarget.style.borderColor=C.border; e.currentTarget.style.background=C.bgCard; }}>
+      <div style={{ fontSize:36, marginBottom:8 }}>{icon}</div>
+      <div style={{ fontFamily:"Rajdhani,sans-serif", fontSize:18, fontWeight:700, color:C.text }}>{title}</div>
+      <div style={{ fontSize:11, color:C.textDim, marginTop:4 }}>{sub}</div>
+    </div>
+  );
+}
+function SideCard({ icon, title, sub, color, active, onClick }) {
+  return (
+    <div onClick={onClick} style={{ ...S.card, padding:"20px 32px", cursor:"pointer", textAlign:"center", minWidth:150, borderColor:active?color:C.border, background:active?color+"18":C.bgCard, transition:"all .15s" }}>
+      <div style={{ fontSize:32 }}>{icon}</div>
+      <div style={{ fontFamily:"Rajdhani,sans-serif", fontSize:16, fontWeight:700, color:active?color:C.text, marginTop:6 }}>{title}</div>
+      <div style={{ fontSize:11, color:C.textDim, marginTop:2 }}>{sub}</div>
+      {active && <div style={{ fontSize:11, color, marginTop:6, fontWeight:600 }}>✓ เลือกแล้ว</div>}
+    </div>
+  );
+}
+function LabelInput({ label, value, color, onChange }) {
+  return (
+    <div>
+      <div style={{ ...S.label, color, marginBottom:4 }}>{label}</div>
+      <input value={value} onChange={onChange} style={{ background:C.bgCard, border:`1px solid ${color}44`, borderRadius:8, padding:"8px 12px", color:C.text, fontSize:13, width:160, outline:"none", fontFamily:"Inter,sans-serif" }} />
+    </div>
+  );
+}
+function BackBtn({ onClick, label="← กลับ" }) {
+  return (
+    <button onClick={onClick} style={{ background:"transparent", color:C.textDim, border:`1px solid ${C.border}`, borderRadius:7, padding:"5px 14px", cursor:"pointer", fontSize:12, fontFamily:"Inter,sans-serif" }}>{label}</button>
+  );
+}
+
+// ─── PHASE BAR ────────────────────────────────────────────────────────────────
+function PhaseBar({ order, step }) {
+  const phases = [];
+  let cur = null;
+  order.forEach((o,i) => {
+    if (!cur || cur.phase!==o.phase) { cur={phase:o.phase,start:i,end:i,num:phases.length+1}; phases.push(cur); }
+    else cur.end=i;
+  });
+  return (
+    <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:6, marginBottom:10 }}>
+      {phases.map((p,i)=>{
+        const active=step>=p.start&&step<=p.end;
+        const done=step>p.end;
+        const isBan=p.phase==="ban";
+        const col=isBan?"#ef4444":C.gold;
+        return (
+          <div key={i} style={{ display:"flex", alignItems:"center", gap:6 }}>
+            {i>0&&<div style={{ width:20, height:1, background:done?col+"44":C.border }} />}
+            <div style={{ fontSize:10, fontWeight:active?700:400, padding:"3px 12px", borderRadius:20, background:active?col+"22":done?col+"11":"transparent", color:active?col:done?col+"88":C.textDim, border:`1px solid ${active?col:done?col+"33":C.border}`, letterSpacing:"0.05em", fontFamily:"Rajdhani,sans-serif", transition:"all .2s" }}>
+              {done?"✓ ":active?"▶ "}{isBan?"BAN":"PICK"} {Math.ceil(p.num/2)}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
 
-function SideCard({ icon, title, sub, active, color, onClick }) {
-  return (
-    <div onClick={onClick} style={{
-      background: active ? `${color}22` : "#111827",
-      border: `2px solid ${active ? color : color+"33"}`,
-      borderRadius:14, padding:"24px 36px", cursor:"pointer", textAlign:"center", transition:"all 0.15s", minWidth:150
-    }}>
-      <div style={{ fontSize:36 }}>{icon}</div>
-      <div style={{ fontSize:16, fontWeight:700, color: active ? color : "#ccc", marginTop:8 }}>{title}</div>
-      <div style={{ fontSize:11, color:"#666", marginTop:4 }}>{sub}</div>
-      {active && <div style={{ marginTop:8, fontSize:11, color, fontWeight:600 }}>✓ เลือกแล้ว</div>}
-    </div>
-  );
-}
-
-function StepBack({ onClick }) {
-  return (
-    <button onClick={onClick} style={{ position:"absolute", top:70, left:16, background:"transparent", color:"#666", border:"1px solid #333", borderRadius:6, padding:"5px 14px", cursor:"pointer", fontSize:12 }}>← กลับ</button>
-  );
-}
-
-
-function DraftBoard({ draftState, setDraftState, heroes, mode }) {
+// ─── DRAFT BOARD ──────────────────────────────────────────────────────────────
+function DraftBoard({ draft, setDraft, heroes }) {
   const [search, setSearch] = useState("");
-  const { order, step, blueBans, redBans, bluePicks, redPicks } = draftState;
+  const { order, step, blueBans, redBans, bluePicks, redPicks } = draft;
   const isDone = step >= order.length;
+  const cur = !isDone ? order[step] : null;
 
-  const usedIds = new Set([
-    ...blueBans.filter(Boolean).map(h=>h.id),
-    ...redBans.filter(Boolean).map(h=>h.id),
-    ...bluePicks.filter(Boolean).map(h=>h.id),
-    ...redPicks.filter(Boolean).map(h=>h.id),
-  ]);
-  const bannedIds = new Set([
-    ...blueBans.filter(Boolean).map(h=>h.id),
-    ...redBans.filter(Boolean).map(h=>h.id),
-  ]);
+  const usedIds = new Set([...blueBans,...redBans,...bluePicks,...redPicks].filter(Boolean).map(h=>h.id));
+  const bannedIds = new Set([...blueBans,...redBans].filter(Boolean).map(h=>h.id));
 
-  function pickHero(hero) {
-    if (isDone || usedIds.has(hero.id)) return;
-    const cur = order[step];
-    setDraftState(prev => {
-      const next = { ...prev };
-      if (cur.phase === "ban") {
-        if (cur.team === "blue") { next.blueBans = [...prev.blueBans]; next.blueBans[cur.slot] = hero; }
-        else { next.redBans = [...prev.redBans]; next.redBans[cur.slot] = hero; }
+  function pick(hero) {
+    if (isDone||usedIds.has(hero.id)) return;
+    setDraft(prev=>{
+      const c=prev.order[prev.step];
+      const next={...prev};
+      if (c.phase==="ban") {
+        if (c.team==="blue") { next.blueBans=[...prev.blueBans]; next.blueBans[c.slot]=hero; }
+        else { next.redBans=[...prev.redBans]; next.redBans[c.slot]=hero; }
       } else {
-        if (cur.team === "blue") { next.bluePicks = [...prev.bluePicks]; next.bluePicks[cur.slot] = hero; }
-        else { next.redPicks = [...prev.redPicks]; next.redPicks[cur.slot] = hero; }
+        if (c.team==="blue") { next.bluePicks=[...prev.bluePicks]; next.bluePicks[c.slot]=hero; }
+        else { next.redPicks=[...prev.redPicks]; next.redPicks[c.slot]=hero; }
       }
-      return { ...next, step: prev.step + 1 };
+      return { ...next, step:prev.step+1 };
     });
   }
 
   function undo() {
-    if (step <= 0) return;
-    setDraftState(prev => {
-      const s = prev.step - 1;
-      const cur = prev.order[s];
-      const next = { ...prev, step: s };
-      if (cur.phase === "ban") {
-        if (cur.team === "blue") { next.blueBans = [...prev.blueBans]; next.blueBans[cur.slot] = null; }
-        else { next.redBans = [...prev.redBans]; next.redBans[cur.slot] = null; }
+    if (step<=0) return;
+    setDraft(prev=>{
+      const s=prev.step-1; const c=prev.order[s];
+      const next={...prev,step:s};
+      if (c.phase==="ban") {
+        if (c.team==="blue") { next.blueBans=[...prev.blueBans]; next.blueBans[c.slot]=null; }
+        else { next.redBans=[...prev.redBans]; next.redBans[c.slot]=null; }
       } else {
-        if (cur.team === "blue") { next.bluePicks = [...prev.bluePicks]; next.bluePicks[cur.slot] = null; }
-        else { next.redPicks = [...prev.redPicks]; next.redPicks[cur.slot] = null; }
+        if (c.team==="blue") { next.bluePicks=[...prev.bluePicks]; next.bluePicks[c.slot]=null; }
+        else { next.redPicks=[...prev.redPicks]; next.redPicks[c.slot]=null; }
       }
       return next;
     });
   }
 
-  const cur = !isDone ? order[step] : null;
-  const blueScore = getBanScore(bluePicks.filter(Boolean), heroes);
-  const redScore = getBanScore(redPicks.filter(Boolean), heroes);
-
-  const filteredHeroes = heroes.filter(h => h.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = heroes.filter(h=>h.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div>
-      {/* Phase progress bar */}
-      <DraftPhaseBar order={order} step={step} />
+      <PhaseBar order={order} step={step} />
 
       {/* Turn indicator */}
-      <div style={{ textAlign:"center", fontSize:13, marginBottom:8, minHeight:22 }}>
+      <div style={{ textAlign:"center", marginBottom:10, minHeight:24, fontSize:13 }}>
         {isDone ? (
-          <span style={{ color:"#c8a84b", fontWeight:600 }}>✓ Draft เสร็จสิ้น!</span>
+          <span style={{ color:C.gold, fontWeight:600, fontFamily:"Rajdhani,sans-serif", letterSpacing:"0.1em" }}>✓ DRAFT COMPLETE</span>
         ) : (
           <span>
-            {cur.phase === "ban" ? <span style={{ color:"#f87171" }}>🚫 BAN</span> : <span style={{ color:"#c8a84b" }}>✅ PICK</span>}
+            {cur.phase==="ban"
+              ? <span style={{ color:"#ef4444", fontFamily:"Rajdhani,sans-serif", fontWeight:600 }}>🚫 BAN</span>
+              : <span style={{ color:C.gold, fontFamily:"Rajdhani,sans-serif", fontWeight:600 }}>✅ PICK</span>}
             {" — "}
-            <span style={{ color: cur.team==="blue"?"#4a9eff":"#ff5555", fontWeight:600 }}>
-              {cur.team === "blue" ? (draftState.blueLabel||"BLUE TEAM") : (draftState.redLabel||"RED TEAM")}
+            <span style={{ color:cur.team==="blue"?C.blue:C.red, fontWeight:600, fontFamily:"Rajdhani,sans-serif" }}>
+              {cur.team==="blue"?(draft.blueLabel||"BLUE"):(draft.redLabel||"RED")}
             </span>
-            {" สล็อต "}{cur.slot+1}
-            {" "}
-            <span style={{ fontSize:10, color:"#555", background:"#1e2a3a", borderRadius:4, padding:"1px 6px" }}>
-              {getDraftPhaseLabel(order, step)}
-            </span>
+            <span style={{ color:C.textDim }}> สล็อต {cur.slot+1}</span>
           </span>
         )}
       </div>
 
       {/* Ban rows */}
-      <div style={{ display:"flex", justifyContent:"center", gap:16, marginBottom:10 }}>
-        <TeamBans bans={blueBans} team="blue" label={draftState.blueLabel||"BLUE"} cur={cur} isDone={isDone} />
-        <div style={{ display:"flex", alignItems:"center", fontSize:11, color:"#555" }}>BAN</div>
-        <TeamBans bans={redBans} team="red" label={draftState.redLabel||"RED"} cur={cur} isDone={isDone} />
+      <div style={{ display:"flex", justifyContent:"center", alignItems:"flex-end", gap:12, marginBottom:10 }}>
+        <TeamBanRow bans={blueBans} team="blue" label={draft.blueLabel||"BLUE"} cur={cur} isDone={isDone} />
+        <div style={{ ...S.label, paddingBottom:6 }}>BAN</div>
+        <TeamBanRow bans={redBans}  team="red"  label={draft.redLabel||"RED"}   cur={cur} isDone={isDone} />
       </div>
 
       {/* Pick rows */}
-      <div style={{ display:"flex", justifyContent:"center", gap:8, marginBottom:12 }}>
-        <div style={{ flex:1, maxWidth:340 }}>
-          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
-            <span style={{ color:"#4a9eff", fontSize:11, fontWeight:600, letterSpacing:1 }}>{draftState.blueLabel||"BLUE TEAM"}</span>
-            <span style={{ color:"#4a9eff", fontSize:11 }}>Power: <b>{blueScore}</b></span>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:10 }}>
+        <div>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
+            <span style={{ color:C.blue, fontSize:12, fontWeight:600, fontFamily:"Rajdhani,sans-serif", letterSpacing:"0.1em" }}>{draft.blueLabel||"BLUE TEAM"}</span>
+            <span style={{ color:C.textDim, fontSize:11 }}>PWR <span style={{ color:C.blue }}>{getAvgScore(bluePicks.filter(Boolean))}</span></span>
           </div>
-          <div style={{ display:"flex", gap:5 }}>
-            {bluePicks.map((h,i) => {
-              const isActive = cur && cur.phase==="pick" && cur.team==="blue" && cur.slot===i;
-              return <PickSlot key={i} hero={h} team="blue" isActive={isActive} />;
-            })}
+          <div style={{ display:"flex", gap:4 }}>
+            {bluePicks.map((h,i)=>(
+              <PickSlot key={i} hero={h} team="blue" isActive={!isDone&&cur?.phase==="pick"&&cur?.team==="blue"&&cur?.slot===i} />
+            ))}
           </div>
         </div>
-        <div style={{ width:2, background:"#1e2a3a", margin:"0 4px" }} />
-        <div style={{ flex:1, maxWidth:340 }}>
-          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
-            <span style={{ color:"#ff5555", fontSize:11, fontWeight:600, letterSpacing:1 }}>{draftState.redLabel||"RED TEAM"}</span>
-            <span style={{ color:"#ff5555", fontSize:11 }}>Power: <b>{redScore}</b></span>
+        <div>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
+            <span style={{ color:C.red, fontSize:12, fontWeight:600, fontFamily:"Rajdhani,sans-serif", letterSpacing:"0.1em" }}>{draft.redLabel||"RED TEAM"}</span>
+            <span style={{ color:C.textDim, fontSize:11 }}>PWR <span style={{ color:C.red }}>{getAvgScore(redPicks.filter(Boolean))}</span></span>
           </div>
-          <div style={{ display:"flex", gap:5 }}>
-            {redPicks.map((h,i) => {
-              const isActive = cur && cur.phase==="pick" && cur.team==="red" && cur.slot===i;
-              return <PickSlot key={i} hero={h} team="red" isActive={isActive} />;
-            })}
+          <div style={{ display:"flex", gap:4 }}>
+            {redPicks.map((h,i)=>(
+              <PickSlot key={i} hero={h} team="red" isActive={!isDone&&cur?.phase==="pick"&&cur?.team==="red"&&cur?.slot===i} />
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Real-time Suggestion Panel */}
-      {!isDone && <RealtimeSuggestion draftState={draftState} heroes={heroes} cur={cur} usedIds={usedIds} bannedIds={bannedIds} />}
+      {/* Suggestion */}
+      {!isDone && <SuggestionPanel draft={draft} heroes={heroes} cur={cur} usedIds={usedIds} bannedIds={bannedIds} />}
 
-      {/* Controls */}
+      {/* Search + Undo */}
       <div style={{ display:"flex", gap:8, marginBottom:8 }}>
-        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 SEARCH HERO..." style={{ flex:1, background:"#111827", border:"1px solid #2a3040", borderRadius:7, padding:"8px 12px", color:"#ccc", fontSize:13, outline:"none" }} />
-        <button onClick={undo} disabled={step<=0} style={{ background:"#1e2435", color:step>0?"#f87171":"#444", border:`1px solid ${step>0?"#f8717144":"#222"}`, borderRadius:7, padding:"8px 14px", cursor:step>0?"pointer":"default", fontSize:13 }}>↩ Undo</button>
+        <div style={{ flex:1, position:"relative" }}>
+          <span style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", color:C.textDim, fontSize:14 }}>🔍</span>
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="SEARCH HERO..." style={{ width:"100%", background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:8, padding:"9px 12px 9px 30px", color:C.text, fontSize:13, outline:"none", fontFamily:"Inter,sans-serif" }} />
+        </div>
+        <button onClick={undo} disabled={step<=0} style={{ background:step>0?"#ef444418":"transparent", color:step>0?"#ef4444":C.textMuted, border:`1px solid ${step>0?"#ef444433":C.border}`, borderRadius:8, padding:"8px 16px", cursor:step>0?"pointer":"default", fontSize:13, fontFamily:"Inter,sans-serif" }}>↩ Undo</button>
       </div>
 
       {/* Hero Grid */}
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(58px,1fr))", gap:5, maxHeight:320, overflowY:"auto" }}>
-        {filteredHeroes.map(hero => {
-          const isUsed = usedIds.has(hero.id);
-          const isBanned = bannedIds.has(hero.id);
-          const blueHas = bluePicks.some(h=>h?.id===hero.id);
-          const redHas = redPicks.some(h=>h?.id===hero.id);
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(60px,1fr))", gap:5, maxHeight:300, overflowY:"auto" }}>
+        {filtered.map(h=>{
+          const isUsed=usedIds.has(h.id);
+          const isBanned=bannedIds.has(h.id);
+          const hasBlue=bluePicks.some(p=>p?.id===h.id);
+          const hasRed=redPicks.some(p=>p?.id===h.id);
           return (
-            <div key={hero.id} onClick={()=>pickHero(hero)}
-              style={{ borderRadius:8, overflow:"hidden", aspectRatio:"1", background:`${hero.color}22`, border:`2px solid ${isUsed?(isBanned?"#f8717166":blueHas?"#4a9eff66":"#ff555566"):"transparent"}`, opacity:isUsed?0.35:1, cursor:isUsed?"default":"pointer", position:"relative", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", transition:"transform 0.1s, border-color 0.1s" }}
-              onMouseEnter={e=>{ if(!isUsed) e.currentTarget.style.transform="scale(1.06)"; }}
+            <div key={h.id} onClick={()=>pick(h)} style={{ borderRadius:8, overflow:"hidden", aspectRatio:"1", background:isUsed?`${h.color}0a`:`${h.color}18`, border:`2px solid ${isUsed?(isBanned?"#ef444444":hasBlue?C.blue+"66":C.red+"66"):"transparent"}`, opacity:isUsed?.35:1, cursor:isUsed?"default":"pointer", position:"relative", display:"flex", alignItems:"center", justifyContent:"center", transition:"transform .1s, border-color .1s" }}
+              onMouseEnter={e=>{ if(!isUsed) e.currentTarget.style.transform="scale(1.07)"; }}
               onMouseLeave={e=>{ e.currentTarget.style.transform="scale(1)"; }}>
-              {hero.img
-                ? <img src={hero.img} alt={hero.name} style={{ width:"100%", height:"100%", objectFit:"cover", position:"absolute", inset:0 }} />
-                : <div style={{ fontSize:22 }}>{hero.emoji}</div>
+              {h.img
+                ? <img src={h.img} alt={h.name} style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover" }} />
+                : <div style={{ fontSize:22 }}>{h.emoji}</div>
               }
-              <div style={{ position:"absolute", bottom:0, left:0, right:0, fontSize:7, textAlign:"center", background:"#000b", padding:"2px 2px 3px", color:"#eee", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{hero.name}</div>
-              {isBanned && <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center", background:"#0006" }}><span style={{ fontSize:20, color:"#f87171", fontWeight:700 }}>✕</span></div>}
-              <div style={{ position:"absolute", top:2, right:2, fontSize:7, background: TIER_COLORS[hero.tier]+"cc", color:"#000", borderRadius:3, padding:"0 3px", fontWeight:800 }}>{hero.tier}</div>
+              <div style={{ position:"absolute", bottom:0, left:0, right:0, fontSize:7, textAlign:"center", background:"linear-gradient(transparent,#000c)", padding:"4px 2px 3px", color:"#eee", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{h.name}</div>
+              {isBanned && <div style={{ position:"absolute", inset:0, background:"#0009", display:"flex", alignItems:"center", justifyContent:"center" }}><span style={{ fontSize:18, color:"#ef4444" }}>✕</span></div>}
+              <div style={{ position:"absolute", top:2, right:2, fontSize:7, background:TIER_COLORS[h.tier]+"dd", color:"#000", borderRadius:3, padding:"0 3px", fontWeight:800 }}>{h.tier}</div>
             </div>
           );
         })}
@@ -560,27 +508,23 @@ function DraftBoard({ draftState, setDraftState, heroes, mode }) {
   );
 }
 
-function TeamBans({ bans, team, label, cur, isDone }) {
+function TeamBanRow({ bans, team, label, cur, isDone }) {
+  const color = team==="blue"?C.blue:C.red;
   return (
     <div style={{ textAlign:"center" }}>
-      <div style={{ fontSize:9, color: team==="blue"?"#4a9eff":"#ff5555", letterSpacing:1, marginBottom:3 }}>{label}</div>
+      <div style={{ ...S.label, color, marginBottom:4 }}>{label}</div>
       <div style={{ display:"flex", gap:4 }}>
-        {bans.map((h,i) => {
-          const isActive = !isDone && cur?.phase==="ban" && cur?.team===team && cur?.slot===i;
+        {bans.map((h,i)=>{
+          const isActive=!isDone&&cur?.phase==="ban"&&cur?.team===team&&cur?.slot===i;
           return (
-            <div key={i} style={{ width:38, height:38, borderRadius:6, border:`2px solid ${isActive?"#c8a84b":team==="blue"?"#1a5fa855":"#a81a1a55"}`, background:"#111827", display:"flex", alignItems:"center", justifyContent:"center", position:"relative", overflow:"hidden", boxShadow:isActive?"0 0 0 2px #c8a84b44":undefined }}>
+            <div key={i} className={isActive?"active-slot":""} style={{ width:40, height:40, borderRadius:7, border:`2px solid ${isActive?C.gold:color+"44"}`, background:isActive?`${C.gold}0a`:C.bgCard, overflow:"hidden", position:"relative", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
               {h ? (
                 <>
-                  {h.img
-                    ? <img src={h.img} alt={h.name} style={{ width:"100%", height:"100%", objectFit:"cover", filter:"grayscale(0.5)" }} />
-                    : <div style={{ fontSize:18, filter:"grayscale(0.6)" }}>{h.emoji}</div>
-                  }
-                  <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center", background:"#0005" }}>
-                    <span style={{ fontSize:16, color:"#f87171", fontWeight:700 }}>✕</span>
-                  </div>
+                  {h.img ? <img src={h.img} style={{ width:"100%", height:"100%", objectFit:"cover", filter:"grayscale(0.4)" }} /> : <div style={{ fontSize:18, filter:"grayscale(.5)" }}>{h.emoji}</div>}
+                  <div style={{ position:"absolute", inset:0, background:"#0007", display:"flex", alignItems:"center", justifyContent:"center" }}><span style={{ fontSize:16, color:"#ef4444", fontWeight:700 }}>✕</span></div>
                 </>
               ) : (
-                <span style={{ fontSize:9, color:"#444" }}>{i+1}</span>
+                <span style={{ fontSize:10, color:C.textMuted }}>{i+1}</span>
               )}
             </div>
           );
@@ -591,212 +535,100 @@ function TeamBans({ bans, team, label, cur, isDone }) {
 }
 
 function PickSlot({ hero, team, isActive }) {
+  const color = team==="blue"?C.blue:C.red;
   return (
-    <div style={{ flex:1, minWidth:0, height:64, borderRadius:8, border:`2px solid ${isActive?"#c8a84b":team==="blue"?"#1a5fa877":"#a81a1a77"}`, background: hero?`${hero.color}22`:"#111827", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", position:"relative", overflow:"hidden", boxShadow:isActive?"0 0 0 3px #c8a84b55":"none" }}>
+    <div className={isActive?"active-slot":""} style={{ flex:1, minWidth:0, height:68, borderRadius:9, border:`2px solid ${isActive?C.gold:color+"55"}`, background:hero?`${hero.color}15`:C.bgCard, position:"relative", overflow:"hidden", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
       {hero ? (
         <>
-          {hero.img
-            ? <img src={hero.img} alt={hero.name} style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover" }} />
-            : <div style={{ fontSize:24 }}>{hero.emoji}</div>
-          }
-          <div style={{ position:"absolute", bottom:0, left:0, right:0, fontSize:7, color:"#eee", textAlign:"center", background:"#000b", padding:"2px 2px 3px", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{hero.name}</div>
-          <div style={{ position:"absolute", top:2, right:2, fontSize:7, background:TIER_COLORS[hero.tier]+"cc", color:"#000", borderRadius:3, padding:"0 3px", fontWeight:800 }}>{hero.tier}</div>
+          {hero.img ? <img src={hero.img} style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover" }} /> : <div style={{ fontSize:26 }}>{hero.emoji}</div>}
+          <div style={{ position:"absolute", bottom:0, left:0, right:0, fontSize:7, textAlign:"center", background:"linear-gradient(transparent,#000d)", padding:"6px 2px 3px", color:"#eee", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{hero.name}</div>
+          <div style={{ position:"absolute", top:2, right:2, fontSize:7, background:TIER_COLORS[hero.tier]+"dd", color:"#000", borderRadius:3, padding:"0 3px", fontWeight:800 }}>{hero.tier}</div>
         </>
       ) : (
-        <span style={{ fontSize:10, color:"#333" }}>?</span>
+        <span style={{ color:C.textMuted, fontSize:16 }}>?</span>
       )}
     </div>
   );
 }
 
-function getDraftPhaseLabel(order, step) {
-  // Detect phase transitions: count ban→pick or pick→ban switches
-  let phase = 1;
-  let prevPhase = order[0]?.phase;
-  for (let i = 1; i <= step && i < order.length; i++) {
-    if (order[i].phase !== prevPhase) { phase++; prevPhase = order[i].phase; }
-  }
-  const curPhase = order[step]?.phase;
-  if (curPhase === "ban") return `Ban Phase ${Math.ceil(phase/2)}`;
-  return `Pick Phase ${Math.ceil(phase/2)}`;
-}
-
-// Phase progress bar showing Ban1 → Pick1 → Ban2 → Pick2
-function DraftPhaseBar({ order, step }) {
-  // Build phases list
-  const phases = [];
-  let cur = null;
-  order.forEach((o, i) => {
-    const label = o.phase === "ban" ? "Ban" : "Pick";
-    if (!cur || cur.phase !== o.phase) {
-      cur = { phase: o.phase, label, start: i, end: i };
-      phases.push(cur);
-    } else {
-      cur.end = i;
-    }
-  });
-
-  return (
-    <div style={{ display:"flex", alignItems:"center", gap:2, marginBottom:8, justifyContent:"center" }}>
-      {phases.map((p, i) => {
-        const isActive = step >= p.start && step <= p.end;
-        const isDone = step > p.end;
-        const color = p.phase === "ban" ? "#f87171" : "#c8a84b";
-        return (
-          <div key={i} style={{ display:"flex", alignItems:"center", gap:2 }}>
-            {i > 0 && <div style={{ width:16, height:1, background:"#2a3040" }} />}
-            <div style={{
-              fontSize:9, padding:"2px 8px", borderRadius:10,
-              background: isDone ? `${color}22` : isActive ? `${color}33` : "#111827",
-              color: isDone ? `${color}88` : isActive ? color : "#444",
-              border: `1px solid ${isActive ? color : isDone ? `${color}44` : "#2a3040"}`,
-              fontWeight: isActive ? 700 : 400,
-              letterSpacing: 0.5,
-            }}>
-              {isDone ? "✓ " : isActive ? "▶ " : ""}{p.label} {Math.ceil((i+1)/2)}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-
-function getBanScore(picks, allHeroes) {
-  if (!picks.length) return 0;
-  const val = { "S+":10,"S":8,"A":6,"B":4,"C":2,"D":1 };
-  return Math.round(picks.reduce((sum,h)=>sum+(val[h.tier]||4),0) / picks.length * 10) / 10;
-}
-
-// ==================== REAL-TIME SUGGESTION ====================
-function RealtimeSuggestion({ draftState, heroes, cur, usedIds, bannedIds }) {
-  const { bluePicks, redPicks, blueBans, redBans } = draftState;
-  if (!cur) return null;
-
+// ─── SUGGESTION PANEL ─────────────────────────────────────────────────────────
+function SuggestionPanel({ draft, heroes, cur, usedIds, bannedIds }) {
   const myTeam = cur.team;
-  const myPicks = (myTeam === "blue" ? bluePicks : redPicks).filter(Boolean);
-  const enemyPicks = (myTeam === "blue" ? redPicks : bluePicks).filter(Boolean);
-  const myBans = (myTeam === "blue" ? blueBans : redBans).filter(Boolean);
+  const myPicks    = (myTeam==="blue"?draft.bluePicks:draft.redPicks).filter(Boolean);
+  const enemyPicks = (myTeam==="blue"?draft.redPicks:draft.bluePicks).filter(Boolean);
+  const available  = heroes.filter(h=>!usedIds.has(h.id));
+  const isBan = cur.phase==="ban";
+  const color = myTeam==="blue"?C.blue:C.red;
+  const label = myTeam==="blue"?(draft.blueLabel||"BLUE"):(draft.redLabel||"RED");
 
-  const available = heroes.filter(h => !usedIds.has(h.id));
-  const TIER_VAL = { "S+":10,"S":8,"A":6,"B":4,"C":2,"D":1 };
-
-  // Roles present
   const myRoles = new Set(myPicks.flatMap(h=>h.role));
-  const missingRoles = ["Tank","Marksman","Support","Mage","Assassin","Warrior"].filter(r=>!myRoles.has(r));
-  const urgentRoles = missingRoles.slice(0, 3);
+  const missingRoles = ROLES.filter(r=>!myRoles.has(r)).slice(0,3);
 
-  // Score hero based on context
-  function scoreHero(hero) {
-    let score = TIER_VAL[hero.tier] || 4;
-    // Bonus if fills missing role
-    if (hero.role.some(r => urgentRoles.includes(r))) score += 3;
-    // Bonus if counters enemy picks
-    const countersEnemy = enemyPicks.filter(e => (hero.counters||[]).includes(e.id)).length;
-    score += countersEnemy * 2;
-    // Penalty if countered by our picks
-    const counteredByUs = myPicks.filter(p => (hero.counteredBy||[]).includes(p.id)).length;
-    score -= counteredByUs;
-    // Synergy with team
-    const synergyCount = myPicks.filter(p => (hero.synergy||[]).includes(p.id) || (p.synergy||[]).includes(hero.id)).length;
-    score += synergyCount * 1.5;
-    return score;
-  }
-
-  // BAN suggestions: target high-tier enemy meta heroes, or heroes that counter our picks
-  function getBanSuggestions() {
-    return available
-      .filter(h => !bannedIds.has(h.id))
-      .map(h => {
-        let score = TIER_VAL[h.tier] || 4;
-        // Priority ban if counters our current picks
-        const countersUs = myPicks.filter(p => (h.counters||[]).includes(p.id)).length;
-        score += countersUs * 3;
-        // Priority ban S+ and S tier
-        if (h.tier === "S+") score += 4;
-        if (h.tier === "S") score += 2;
-        return { hero:h, score, reason: countersUs > 0
-          ? `Counter ${myPicks.filter(p=>(h.counters||[]).includes(p.id)).map(p=>p.name).join(", ")} ของเรา`
-          : `${h.tier} Tier — Priority pick ของศัตรู`
-        };
-      })
-      .sort((a,b)=>b.score-a.score)
-      .slice(0,4);
-  }
-
-  // PICK suggestions: fill roles, counter enemy, synergy
-  function getPickSuggestions() {
-    return available
-      .map(h => {
-        const score = scoreHero(h);
-        const reasons = [];
-        if (hero_counters_enemy(h)) reasons.push(`Counter ${enemyPicks.filter(e=>(h.counters||[]).includes(e.id)).map(e=>e.name).join(", ")}`);
-        if (h.role.some(r=>urgentRoles.includes(r))) reasons.push(`เติม ${h.role.filter(r=>urgentRoles.includes(r)).join("/")}`);
-        const syn = myPicks.filter(p=>(h.synergy||[]).includes(p.id)||(p.synergy||[]).includes(h.id));
-        if (syn.length) reasons.push(`Synergy กับ ${syn.map(p=>p.name).join(", ")}`);
-        if (!reasons.length) reasons.push(`${h.tier} Tier — Strong pick`);
-        return { hero:h, score, reason: reasons[0] };
-      })
-      .sort((a,b)=>b.score-a.score)
-      .slice(0,4);
-  }
-
-  function hero_counters_enemy(h) {
-    return enemyPicks.some(e=>(h.counters||[]).includes(e.id));
-  }
-
-  const isBanPhase = cur.phase === "ban";
-  const suggestions = isBanPhase ? getBanSuggestions() : getPickSuggestions();
-  const teamColor = myTeam === "blue" ? "#4a9eff" : "#ff5555";
-  const teamLabel = myTeam === "blue" ? (draftState.blueLabel||"Blue Team") : (draftState.redLabel||"Red Team");
-
-  // Composition hint
-  const compHints = [];
-  if (!isBanPhase) {
-    if (myPicks.length > 0) {
-      if (!myRoles.has("Tank") && myPicks.length >= 2) compHints.push({ icon:"⚠️", text:"ยังไม่มี Tank", color:"#fbbf24" });
-      if (!myRoles.has("Marksman") && !myRoles.has("Mage") && myPicks.length >= 2) compHints.push({ icon:"⚠️", text:"ยังไม่มี Carry", color:"#fbbf24" });
-      if (!myRoles.has("Support") && myPicks.length >= 3) compHints.push({ icon:"⚠️", text:"ยังไม่มี Support", color:"#fb923c" });
-      if (enemyPicks.length > 0) {
-        const enemyRoles = new Set(enemyPicks.flatMap(h=>h.role));
-        if (enemyRoles.has("Assassin") && !myRoles.has("Tank")) compHints.push({ icon:"🎯", text:"ศัตรูมี Assassin — ควร Pick Tank", color:"#f87171" });
-      }
+  function score(h) {
+    let s = getTierVal(h.tier);
+    if (isBan) {
+      if (h.tier==="S+") s+=4; if (h.tier==="S") s+=2;
+      const countersUs = myPicks.filter(p=>(h.counters||[]).includes(p.id)).length;
+      s += countersUs*3;
+    } else {
+      if (h.role.some(r=>missingRoles.includes(r))) s+=3;
+      const countersEnemy = enemyPicks.filter(e=>(h.counters||[]).includes(e.id)).length;
+      s += countersEnemy*2;
+      const syn = myPicks.filter(p=>(h.synergy||[]).includes(p.id)||(p.synergy||[]).includes(h.id)).length;
+      s += syn*1.5;
     }
+    return s;
   }
 
-  if (suggestions.length === 0) return null;
+  function getReason(h) {
+    if (isBan) {
+      const cnt = myPicks.filter(p=>(h.counters||[]).includes(p.id));
+      if (cnt.length) return `Counter ${cnt.map(p=>p.name).join(", ")}`;
+      return `${h.tier} Tier — ตัว Priority`;
+    }
+    if (enemyPicks.some(e=>(h.counters||[]).includes(e.id))) return `Counter ศัตรู`;
+    if (h.role.some(r=>missingRoles.includes(r))) return `เติม ${h.role.filter(r=>missingRoles.includes(r)).join("/")}`;
+    const syn = myPicks.filter(p=>(h.synergy||[]).includes(p.id)||(p.synergy||[]).includes(h.id));
+    if (syn.length) return `Synergy กับ ${syn.map(p=>p.name).join(", ")}`;
+    return `${h.tier} Tier — Strong pick`;
+  }
+
+  const suggestions = available.map(h=>({ h, s:score(h), r:getReason(h) })).sort((a,b)=>b.s-a.s).slice(0,5);
+
+  const hints = [];
+  if (!isBan) {
+    if (!myRoles.has("Tank")&&myPicks.length>=2) hints.push({ t:"ขาด Tank", c:"#f97316" });
+    if (!myRoles.has("Marksman")&&!myRoles.has("Mage")&&myPicks.length>=2) hints.push({ t:"ขาด Carry", c:"#eab308" });
+    if (!myRoles.has("Support")&&myPicks.length>=3) hints.push({ t:"ขาด Support", c:"#f472b6" });
+    if (enemyPicks.some(e=>e.role.includes("Assassin"))&&!myRoles.has("Tank")) hints.push({ t:"ศัตรูมี Assassin", c:"#ef4444" });
+  }
 
   return (
-    <div style={{ background:"#0d1525", borderRadius:8, border:`1px solid ${teamColor}33`, padding:"8px 10px", marginBottom:8 }}>
-      <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:6 }}>
-        <div style={{ width:3, height:14, background:teamColor, borderRadius:2 }} />
-        <span style={{ fontSize:11, fontWeight:600, color:teamColor }}>
-          {isBanPhase ? "🚫 แนะนำ BAN" : "✅ แนะนำ PICK"} — {teamLabel}
+    <div className="fade-in" style={{ ...S.card, padding:"10px 12px", marginBottom:10, borderColor:`${color}33` }}>
+      <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8, flexWrap:"wrap" }}>
+        <div style={{ width:3, height:14, background:color, borderRadius:2 }} />
+        <span style={{ fontSize:11, fontWeight:600, color, fontFamily:"Rajdhani,sans-serif", letterSpacing:"0.08em" }}>
+          {isBan?"🚫 แนะนำ BAN":"✅ แนะนำ PICK"} — {label}
         </span>
-        {compHints.length > 0 && (
-          <div style={{ display:"flex", gap:4, marginLeft:"auto", flexWrap:"wrap" }}>
-            {compHints.map((h,i)=>(
-              <span key={i} style={{ fontSize:9, background:`${h.color}22`, color:h.color, borderRadius:4, padding:"1px 6px", border:`1px solid ${h.color}44` }}>{h.icon} {h.text}</span>
-            ))}
-          </div>
-        )}
+        {hints.map((hint,i)=>(
+          <span key={i} style={{ fontSize:9, background:`${hint.c}18`, color:hint.c, border:`1px solid ${hint.c}44`, borderRadius:5, padding:"1px 7px", fontWeight:500 }}>⚠ {hint.t}</span>
+        ))}
       </div>
-      <div style={{ display:"flex", gap:5, overflowX:"auto" }}>
-        {suggestions.map(({hero, score, reason}, i) => (
-          <div key={hero.id} style={{ flexShrink:0, background:`${hero.color}18`, border:`1px solid ${i===0?teamColor:hero.color+"55"}`, borderRadius:8, padding:"6px 8px", minWidth:90, maxWidth:110 }}>
-            <div style={{ display:"flex", alignItems:"center", gap:4, marginBottom:3 }}>
-              {i === 0 && <span style={{ fontSize:9, background:teamColor+"33", color:teamColor, borderRadius:3, padding:"0 4px", fontWeight:700 }}>TOP</span>}
-              <span style={{ fontSize:9, background:TIER_COLORS[hero.tier]+"33", color:TIER_COLORS[hero.tier], borderRadius:3, padding:"0 3px", fontWeight:700 }}>{hero.tier}</span>
+      <div style={{ display:"flex", gap:6, overflowX:"auto", paddingBottom:2 }}>
+        {suggestions.map(({ h, r },i)=>(
+          <div key={h.id} style={{ flexShrink:0, width:88, background:`${h.color}12`, border:`1px solid ${i===0?color:h.color+"44"}`, borderRadius:9, padding:"8px 7px", position:"relative" }}>
+            {i===0 && <div style={{ position:"absolute", top:-1, left:7, fontSize:8, background:color, color:"#000", borderRadius:"0 0 4px 4px", padding:"0 5px", fontWeight:700, fontFamily:"Rajdhani,sans-serif" }}>TOP</div>}
+            <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
+              <span style={{ fontSize:8, background:TIER_COLORS[h.tier]+"33", color:TIER_COLORS[h.tier], borderRadius:3, padding:"0 4px", fontWeight:700 }}>{h.tier}</span>
             </div>
             <div style={{ display:"flex", alignItems:"center", gap:5 }}>
-              <span style={{ fontSize:20 }}>{hero.emoji}</span>
-              <div>
-                <div style={{ fontSize:10, fontWeight:600, color:"#e2e8f0" }}>{hero.name}</div>
-                <div style={{ fontSize:8, color:"#64748b" }}>{hero.role.join("/")}</div>
+              {h.img ? <img src={h.img} style={{ width:28, height:28, borderRadius:5, objectFit:"cover", flexShrink:0 }} /> : <div style={{ width:28, height:28, background:`${h.color}22`, borderRadius:5, display:"flex", alignItems:"center", justifyContent:"center", fontSize:17, flexShrink:0 }}>{h.emoji}</div>}
+              <div style={{ minWidth:0 }}>
+                <div style={{ fontSize:10, fontWeight:600, color:C.text, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{h.name}</div>
+                <div style={{ fontSize:8, color:C.textDim }}>{h.role[0]}</div>
               </div>
             </div>
-            <div style={{ fontSize:8, color:"#94a3b8", marginTop:3, lineHeight:1.3 }}>{reason}</div>
+            <div style={{ fontSize:8, color:C.textDim, marginTop:4, lineHeight:1.3 }}>{r}</div>
           </div>
         ))}
       </div>
@@ -804,96 +636,52 @@ function RealtimeSuggestion({ draftState, heroes, cur, usedIds, bannedIds }) {
   );
 }
 
-// ==================== DRAFT ANALYSIS ====================
-function DraftAnalysis({ draftState, heroes }) {
-  const { bluePicks, redPicks, blueBans, redBans } = draftState;
+// ─── DRAFT ANALYSIS ───────────────────────────────────────────────────────────
+function DraftAnalysis({ draft, heroes }) {
+  const { bluePicks, redPicks, blueBans, redBans } = draft;
 
-  function analyzeTeam(picks, bans, label, color) {
-    const validPicks = picks.filter(Boolean);
-    const validBans = bans.filter(Boolean);
-    if (!validPicks.length) return null;
-
+  function analyze(picks, bans, label, color) {
+    const valid = picks.filter(Boolean);
+    if (!valid.length) return null;
     const roles = {};
-    validPicks.forEach(h => { h.role.forEach(r => { roles[r] = (roles[r]||0)+1; }); });
-    const avgTier = getAvgTierScore(validPicks);
-    const tierLabel = avgTier >= 9 ? "S+ Tier Team" : avgTier >= 7 ? "S Tier Team" : avgTier >= 5 ? "A Tier Team" : "B Tier Team";
-    const hasCarry = validPicks.some(h => h.role.includes("Marksman") || h.role.includes("Mage"));
-    const hasTank = validPicks.some(h => h.role.includes("Tank"));
-    const hasSupport = validPicks.some(h => h.role.includes("Support"));
-    const hasCC = validPicks.some(h => h.role.includes("Tank") || h.role.includes("Support"));
-
-    // Ban analysis
-    const bannedTiers = validBans.map(h=>h.tier);
-    const highValueBans = validBans.filter(h=>h.tier==="S+"||h.tier==="S").length;
-
-    const strengths = [];
-    const weaknesses = [];
-    if (hasTank) strengths.push("มีตัวรับดาเมจ");
+    valid.forEach(h=>h.role.forEach(r=>{ roles[r]=(roles[r]||0)+1; }));
+    const avg = getAvgScore(valid);
+    const strengths=[], weaknesses=[];
+    if (valid.some(h=>h.role.includes("Tank"))) strengths.push("มีตัวรับ");
     else weaknesses.push("ขาด Tank");
-    if (hasCarry) strengths.push("มี Carry หลัก");
+    if (valid.some(h=>h.role.includes("Marksman")||h.role.includes("Mage"))) strengths.push("มี Carry");
     else weaknesses.push("ขาด Carry");
-    if (hasSupport) strengths.push("มี Support");
+    if (valid.some(h=>h.role.includes("Support"))) strengths.push("มี Support");
     else weaknesses.push("ขาด Support");
-    if (hasCC) strengths.push("มี CC/Control");
-    if (validPicks.filter(h=>h.role.includes("Assassin")).length>=2) strengths.push("Burst damage สูง");
-    if (validPicks.filter(h=>h.role.includes("Assassin")).length>=2 && !hasTank) weaknesses.push("อาจบางมากใน Late");
-
-    return { label, color, picks: validPicks, bans: validBans, roles, tierLabel, avgTier, strengths, weaknesses, highValueBans };
+    const highBans = bans.filter(Boolean).filter(h=>h.tier==="S+"||h.tier==="S").length;
+    return { label, color, valid, bans:bans.filter(Boolean), roles, avg, strengths, weaknesses, highBans };
   }
 
-  const blueAna = analyzeTeam(bluePicks, blueBans, draftState.blueLabel||"Blue Team", "#4a9eff");
-  const redAna = analyzeTeam(redPicks, redBans, draftState.redLabel||"Red Team", "#ff5555");
+  const blueA = analyze(bluePicks, blueBans, draft.blueLabel||"Blue", C.blue);
+  const redA  = analyze(redPicks,  redBans,  draft.redLabel||"Red",   C.red);
 
-  function getWinFavor() {
-    if (!blueAna || !redAna) return null;
-    const diff = blueAna.avgTier - redAna.avgTier;
-    if (Math.abs(diff) < 0.5) return { label:"สมดุล", color:"#fbbf24" };
-    const favor = diff > 0 ? blueAna : redAna;
-    return { label:`${favor.label} เป็นต่อ`, color: favor.color };
-  }
-
-  const favor = getWinFavor();
+  const diff = (blueA?.avg||0)-(redA?.avg||0);
+  const favor = Math.abs(diff)<0.5 ? { t:"⚖️ สมดุล", c:C.gold } : diff>0 ? { t:`${blueA.label} เป็นต่อ`, c:C.blue } : { t:`${redA.label} เป็นต่อ`, c:C.red };
 
   return (
-    <div style={{ background:"#0d1220", borderRadius:10, border:"1px solid #1e2a3a", padding:14, marginTop:12 }}>
-      <div style={{ fontSize:15, fontWeight:600, color:"#c8a84b", marginBottom:12 }}>📊 วิเคราะห์ Draft</div>
-
-      {favor && (
-        <div style={{ textAlign:"center", marginBottom:12, padding:"8px", background:`${favor.color}22`, borderRadius:8, border:`1px solid ${favor.color}44` }}>
-          <span style={{ color:favor.color, fontWeight:600 }}>⚖️ {favor.label}</span>
-        </div>
-      )}
-
-      <div style={{ display:"flex", gap:12 }}>
-        {[blueAna, redAna].map((ana, idx) => ana && (
-          <div key={idx} style={{ flex:1, background:"#111827", borderRadius:8, padding:12, border:`1px solid ${ana.color}33` }}>
-            <div style={{ color:ana.color, fontWeight:600, marginBottom:6, fontSize:13 }}>{ana.label}</div>
-            <div style={{ fontSize:11, color:"#888", marginBottom:6 }}>Tier Score: <span style={{ color:TIER_COLORS[ana.tierLabel.split(" ")[0]]||"#fff" }}>{ana.avgTier.toFixed(1)} — {ana.tierLabel}</span></div>
-
-            <div style={{ marginBottom:8 }}>
-              <div style={{ fontSize:10, color:"#666", marginBottom:4 }}>COMPOSITION</div>
-              <div style={{ display:"flex", flexWrap:"wrap", gap:3 }}>
-                {Object.entries(ana.roles).map(([r,c]) => (
-                  <span key={r} style={{ fontSize:9, background:"#1e2a3a", color:"#aaa", borderRadius:4, padding:"2px 6px" }}>{r} ×{c}</span>
-                ))}
-              </div>
+    <div style={{ ...S.card, padding:14, marginTop:10 }}>
+      <div style={{ fontFamily:"Rajdhani,sans-serif", fontSize:16, fontWeight:700, color:C.gold, letterSpacing:"0.1em", marginBottom:12 }}>📊 วิเคราะห์ DRAFT</div>
+      <div style={{ textAlign:"center", marginBottom:12, padding:"8px", background:`${favor.c}15`, borderRadius:8, border:`1px solid ${favor.c}33` }}>
+        <span style={{ color:favor.c, fontWeight:600, fontFamily:"Rajdhani,sans-serif" }}>{favor.t}</span>
+      </div>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
+        {[blueA,redA].map((a,i)=>a&&(
+          <div key={i} style={{ background:"#0a1120", borderRadius:8, padding:10, border:`1px solid ${a.color}22` }}>
+            <div style={{ color:a.color, fontWeight:600, fontSize:13, marginBottom:4, fontFamily:"Rajdhani,sans-serif" }}>{a.label}</div>
+            <div style={{ fontSize:11, color:C.textDim, marginBottom:6 }}>Score: <span style={{ color:C.text }}>{a.avg}</span></div>
+            <div style={{ display:"flex", flexWrap:"wrap", gap:3, marginBottom:6 }}>
+              {Object.entries(a.roles).map(([r,c])=>(
+                <span key={r} style={{ fontSize:9, background:`${ROLE_COLORS[r]||"#aaa"}18`, color:ROLE_COLORS[r]||"#aaa", borderRadius:4, padding:"1px 5px" }}>{r}×{c}</span>
+              ))}
             </div>
-
-            <div style={{ marginBottom:8 }}>
-              <div style={{ fontSize:10, color:"#22c55e", marginBottom:3 }}>✓ จุดแข็ง</div>
-              {ana.strengths.map((s,i)=><div key={i} style={{ fontSize:10, color:"#86efac" }}>• {s}</div>)}
-              {ana.weaknesses.map((s,i)=><div key={i} style={{ fontSize:10, color:"#fca5a5" }}>⚠ {s}</div>)}
-            </div>
-
-            <div>
-              <div style={{ fontSize:10, color:"#f87171", marginBottom:3 }}>🚫 Ban ({ana.bans.length} ตัว)</div>
-              <div style={{ display:"flex", gap:3, flexWrap:"wrap" }}>
-                {ana.bans.map((h,i)=>(
-                  <span key={i} style={{ fontSize:9, background:"#f8717122", color:"#fca5a5", borderRadius:4, padding:"2px 5px", border:"1px solid #f8717133" }}>{h.emoji}{h.name} [{h.tier}]</span>
-                ))}
-              </div>
-              {ana.highValueBans > 0 && <div style={{ fontSize:10, color:"#fbbf24", marginTop:3 }}>⭐ แบน S/S+ ไป {ana.highValueBans} ตัว — กดดัน Priority Hero ได้ดี</div>}
-            </div>
+            {a.strengths.map((s,j)=><div key={j} style={{ fontSize:10, color:"#4ade80" }}>✓ {s}</div>)}
+            {a.weaknesses.map((s,j)=><div key={j} style={{ fontSize:10, color:"#f87171" }}>⚠ {s}</div>)}
+            {a.highBans>0&&<div style={{ fontSize:10, color:C.gold, marginTop:4 }}>⭐ แบน S/S+ {a.highBans} ตัว</div>}
           </div>
         ))}
       </div>
@@ -901,225 +689,154 @@ function DraftAnalysis({ draftState, heroes }) {
   );
 }
 
-function getAvgTierScore(picks) {
-  const val = { "S+":10,"S":8,"A":6,"B":4,"C":2,"D":1 };
-  return picks.reduce((sum,h)=>sum+(val[h.tier]||4),0) / (picks.length||1);
-}
-
-// ==================== ADMIN PAGE ====================
-function AdminPage({ heroes, setHeroes, fetchHeroes, adminTab, setAdminTab, apiBase }) {
+// ─── ADMIN PAGE ───────────────────────────────────────────────────────────────
+function AdminPage({ heroes, setHeroes, adminTab, setAdminTab }) {
   return (
-    <div style={{ padding:"12px 16px" }}>
-      <div style={{ display:"flex", gap:8, marginBottom:16 }}>
-        {[["heroes","🦸 จัดการฮีโร่"],["tier","📊 Tier List"],["relations","🔗 Counter/Synergy"]].map(([t,l])=>(
-          <button key={t} onClick={()=>setAdminTab(t)} style={{ background:adminTab===t?"#c8a84b22":"#111827", color:adminTab===t?"#c8a84b":"#888", border:`1px solid ${adminTab===t?"#c8a84b55":"#2a3040"}`, borderRadius:7, padding:"7px 16px", cursor:"pointer", fontSize:13, fontWeight:adminTab===t?600:400 }}>{l}</button>
+    <div style={{ padding:"16px", maxWidth:900, margin:"0 auto" }}>
+      <div style={{ display:"flex", gap:6, marginBottom:16, borderBottom:`1px solid ${C.border}`, paddingBottom:12 }}>
+        {[["heroes","🦸 ฮีโร่"],["tier","📊 Tier List"],["relations","🔗 Counter/Synergy"]].map(([t,l])=>(
+          <button key={t} onClick={()=>setAdminTab(t)} style={{ background:adminTab===t?`${C.gold}15`:"transparent", color:adminTab===t?C.gold:C.textDim, border:`1px solid ${adminTab===t?C.goldDim+"55":"transparent"}`, borderRadius:8, padding:"7px 18px", cursor:"pointer", fontSize:13, fontWeight:adminTab===t?600:400, fontFamily:"Rajdhani,sans-serif", letterSpacing:"0.08em" }}>{l}</button>
         ))}
       </div>
-      {adminTab === "heroes"    && <AdminHeroes    heroes={heroes} setHeroes={setHeroes} fetchHeroes={fetchHeroes} apiBase={apiBase} />}
-      {adminTab === "tier"      && <AdminTier      heroes={heroes} setHeroes={setHeroes} fetchHeroes={fetchHeroes} apiBase={apiBase} />}
-      {adminTab === "relations" && <AdminRelations heroes={heroes} setHeroes={setHeroes} fetchHeroes={fetchHeroes} apiBase={apiBase} />}
+      {adminTab==="heroes"    && <AdminHeroes    heroes={heroes} setHeroes={setHeroes} />}
+      {adminTab==="tier"      && <AdminTier      heroes={heroes} setHeroes={setHeroes} />}
+      {adminTab==="relations" && <AdminRelations heroes={heroes} setHeroes={setHeroes} />}
     </div>
   );
 }
 
-// ==================== ADMIN: HEROES ====================
-const EMPTY_FORM = { name:"", role:[], tier:"A", emoji:"⚔️", color:"#60a5fa", img:"", imgFile: null };
+// ─── ADMIN HEROES ─────────────────────────────────────────────────────────────
+const EMPTY = { name:"", role:[], tier:"A", emoji:"⚔️", color:"#60a5fa", img:"", imgFile:null };
 
-function AdminHeroes({ heroes, setHeroes, fetchHeroes, apiBase }) {
-  const [form, setForm]       = useState(EMPTY_FORM);
-  const [editId, setEditId]   = useState(null);
-  const [search, setSearch]   = useState("");
-  const [msg, setMsg]         = useState({ text:"", ok:true });
-  const [saving, setSaving]   = useState(false);
-  const [dragOver, setDragOver] = useState(false);
+function AdminHeroes({ heroes, setHeroes }) {
+  const [form, setForm] = useState(EMPTY);
+  const [editId, setEditId] = useState(null);
+  const [search, setSearch] = useState("");
+  const [msg, setMsg] = useState({ t:"", ok:true });
+  const [drag, setDrag] = useState(false);
 
-  function showMsg(text, ok=true) { setMsg({text,ok}); setTimeout(()=>setMsg({text:"",ok:true}),3000); }
+  function flash(t,ok=true) { setMsg({t,ok}); setTimeout(()=>setMsg({t:"",ok:true}),2500); }
 
-  // Preview image from file or existing URL
-  function handleImageFile(file) {
-    if (!file || !file.type.startsWith("image/")) return;
-    const reader = new FileReader();
-    reader.onload = e => setForm(f => ({ ...f, img: e.target.result, imgFile: file }));
-    reader.readAsDataURL(file);
-  }
-  function onFileInput(e) { handleImageFile(e.target.files[0]); }
-  function onDrop(e) { e.preventDefault(); setDragOver(false); handleImageFile(e.dataTransfer.files[0]); }
-
-  async function save() {
-    if (!form.name.trim()) { showMsg("⚠️ กรุณาใส่ชื่อฮีโร่", false); return; }
-    if (!form.role.length) { showMsg("⚠️ กรุณาเลือก Role", false); return; }
-    setSaving(true);
-    try {
-      const fd = new FormData();
-      fd.append("name",        form.name.trim());
-      fd.append("role",        JSON.stringify(form.role));
-      fd.append("tier",        form.tier);
-      fd.append("emoji",       form.emoji);
-      fd.append("color",       form.color);
-      fd.append("counters",    JSON.stringify([]));
-      fd.append("counteredBy", JSON.stringify([]));
-      fd.append("synergy",     JSON.stringify([]));
-      if (form.imgFile) fd.append("image", form.imgFile);
-
-      if (editId) {
-        await fetch(`${apiBase}/api/heroes/${editId}`, { method:"PUT", body:fd });
-        showMsg("✅ แก้ไขฮีโร่แล้ว");
-      } else {
-        await fetch(`${apiBase}/api/heroes`, { method:"POST", body:fd });
-        showMsg("✅ เพิ่มฮีโร่แล้ว");
-      }
-      setForm(EMPTY_FORM); setEditId(null);
-      await fetchHeroes();
-    } catch (err) {
-      showMsg("❌ " + err.message, false);
-    } finally {
-      setSaving(false);
-    }
+  function onFile(file) {
+    if (!file?.type.startsWith("image/")) return;
+    const r=new FileReader();
+    r.onload=e=>setForm(f=>({...f,img:e.target.result,imgFile:file}));
+    r.readAsDataURL(file);
   }
 
-  function cancel() { setForm(EMPTY_FORM); setEditId(null); }
-
-  async function del(hero) {
-    if (!window.confirm(`ลบ ${hero.name}?`)) return;
-    try {
-      await fetch(`${apiBase}/api/heroes/${hero.id || hero._id}`, { method:"DELETE" });
-      showMsg("🗑️ ลบแล้ว");
-      await fetchHeroes();
-    } catch (err) {
-      showMsg("❌ " + err.message, false);
+  function save() {
+    if (!form.name.trim()) { flash("⚠️ ใส่ชื่อก่อน",false); return; }
+    if (!form.role.length)  { flash("⚠️ เลือก Role ก่อน",false); return; }
+    if (editId) {
+      setHeroes(p=>p.map(h=>h.id===editId?{...h,...form,imgFile:undefined}:h));
+      flash("✅ แก้ไขแล้ว");
+    } else {
+      const id=Math.max(0,...heroes.map(h=>h.id))+1;
+      setHeroes(p=>[...p,{...form,id,imgFile:undefined,counters:[],counteredBy:[],synergy:[]}]);
+      flash("✅ เพิ่มแล้ว");
     }
+    setForm(EMPTY); setEditId(null);
+  }
+
+  function del(h) {
+    if (!window.confirm(`ลบ ${h.name}?`)) return;
+    setHeroes(p=>p.filter(x=>x.id!==h.id)); flash("🗑️ ลบแล้ว");
   }
 
   function edit(h) {
-    setEditId(h.id || h._id);
-    setForm({ name:h.name, role:h.role||[], tier:h.tier||"A", emoji:h.emoji||"⚔️", color:h.color||"#60a5fa", img:h.img||"", imgFile:null });
-    window.scrollTo({ top:0, behavior:"smooth" });
+    setEditId(h.id);
+    setForm({name:h.name,role:h.role||[],tier:h.tier||"A",emoji:h.emoji||"⚔️",color:h.color||"#60a5fa",img:h.img||"",imgFile:null});
+    window.scrollTo({top:0,behavior:"smooth"});
   }
 
-  function toggleRole(r) {
-    setForm(f => ({ ...f, role: f.role.includes(r) ? f.role.filter(x=>x!==r) : [...f.role,r] }));
-  }
-
-  const filtered = heroes.filter(h => h.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = heroes.filter(h=>h.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div>
-      {/* ── Form ── */}
-      <div style={{ background:"#0d1525", borderRadius:12, padding:16, marginBottom:16, border:`1px solid ${editId?"#c8a84b44":"#1e2a3a"}` }}>
-        <div style={{ fontSize:13, color:"#c8a84b", fontWeight:600, marginBottom:12 }}>
-          {editId ? "✏️ แก้ไขฮีโร่" : "➕ เพิ่มฮีโร่ใหม่"}
+      {/* Form */}
+      <div style={{ ...S.card, padding:16, marginBottom:16, borderColor:editId?`${C.gold}44`:C.border }}>
+        <div style={{ fontFamily:"Rajdhani,sans-serif", fontSize:14, fontWeight:700, color:C.gold, letterSpacing:"0.1em", marginBottom:12 }}>
+          {editId?"✏️ แก้ไขฮีโร่":"➕ เพิ่มฮีโร่ใหม่"}
         </div>
-
-        <div style={{ display:"flex", gap:16, flexWrap:"wrap", alignItems:"flex-start" }}>
-          {/* Image upload */}
+        <div style={{ display:"flex", gap:14, flexWrap:"wrap", alignItems:"flex-start" }}>
+          {/* Image drop */}
           <div>
-            <div style={{ fontSize:11, color:"#666", marginBottom:6 }}>รูปภาพฮีโร่</div>
-            <div
-              onDragOver={e=>{ e.preventDefault(); setDragOver(true); }}
-              onDragLeave={()=>setDragOver(false)}
-              onDrop={onDrop}
-              onClick={()=>document.getElementById("hero-img-input").click()}
-              style={{ width:90, height:90, borderRadius:10, border:`2px dashed ${dragOver?"#c8a84b":"#2a3040"}`, background:dragOver?"#c8a84b11":"#111827", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", cursor:"pointer", overflow:"hidden", position:"relative", transition:"all 0.15s" }}>
-              {form.img ? (
-                <img src={form.img} style={{ width:"100%", height:"100%", objectFit:"cover" }} />
-              ) : (
-                <>
-                  <div style={{ fontSize:28 }}>📷</div>
-                  <div style={{ fontSize:9, color:"#555", textAlign:"center" }}>คลิกหรือลากรูป</div>
-                </>
-              )}
+            <div style={{ ...S.label, marginBottom:6 }}>รูปภาพ</div>
+            <div onDragOver={e=>{e.preventDefault();setDrag(true);}} onDragLeave={()=>setDrag(false)} onDrop={e=>{e.preventDefault();setDrag(false);onFile(e.dataTransfer.files[0]);}} onClick={()=>document.getElementById("himg").click()}
+              style={{ width:88, height:88, borderRadius:10, border:`2px dashed ${drag?C.gold:C.border}`, background:drag?`${C.gold}08`:C.bgCard, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", cursor:"pointer", overflow:"hidden", transition:"all .15s" }}>
+              {form.img ? <img src={form.img} style={{ width:"100%", height:"100%", objectFit:"cover" }} /> : <><div style={{ fontSize:26, marginBottom:4 }}>📷</div><div style={{ fontSize:9, color:C.textDim, textAlign:"center" }}>คลิก / ลาก</div></>}
             </div>
-            <input id="hero-img-input" type="file" accept="image/*" onChange={onFileInput} style={{ display:"none" }} />
-            {form.img && <button onClick={()=>setForm(f=>({...f,img:"",imgFile:null}))} style={{ marginTop:4, background:"transparent", color:"#f87171", border:"none", cursor:"pointer", fontSize:10, padding:0 }}>✕ ลบรูป</button>}
+            <input id="himg" type="file" accept="image/*" onChange={e=>onFile(e.target.files[0])} style={{ display:"none" }} />
+            {form.img && <button onClick={()=>setForm(f=>({...f,img:"",imgFile:null}))} style={{ marginTop:4, background:"transparent", color:"#ef4444", border:"none", cursor:"pointer", fontSize:10 }}>✕ ลบรูป</button>}
           </div>
 
-          {/* Fields */}
-          <div style={{ flex:1, minWidth:260 }}>
-            <div style={{ display:"flex", gap:10, flexWrap:"wrap", marginBottom:10 }}>
-              <div style={{ flex:1, minWidth:140 }}>
-                <div style={{ fontSize:11, color:"#666", marginBottom:4 }}>ชื่อฮีโร่ <span style={{ color:"#f87171" }}>*</span></div>
-                <input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} placeholder="เช่น Nakroth"
-                  style={{ background:"#111827", border:"1px solid #2a3040", borderRadius:7, padding:"7px 10px", color:"#fff", fontSize:13, width:"100%", outline:"none" }} />
+          <div style={{ flex:1, minWidth:240 }}>
+            <div style={{ display:"flex", gap:8, flexWrap:"wrap", marginBottom:10 }}>
+              <div style={{ flex:1, minWidth:130 }}>
+                <div style={{ ...S.label, marginBottom:4 }}>ชื่อฮีโร่ *</div>
+                <input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} placeholder="เช่น Nakroth" style={{ width:"100%", background:"#0a1120", border:`1px solid ${C.border}`, borderRadius:7, padding:"7px 10px", color:C.text, fontSize:13, outline:"none" }} />
               </div>
               <div>
-                <div style={{ fontSize:11, color:"#666", marginBottom:4 }}>Emoji</div>
-                <input value={form.emoji} onChange={e=>setForm(f=>({...f,emoji:e.target.value}))}
-                  style={{ background:"#111827", border:"1px solid #2a3040", borderRadius:7, padding:"7px 8px", color:"#fff", fontSize:18, width:56, textAlign:"center", outline:"none" }} />
+                <div style={{ ...S.label, marginBottom:4 }}>Emoji</div>
+                <input value={form.emoji} onChange={e=>setForm(f=>({...f,emoji:e.target.value}))} style={{ width:50, background:"#0a1120", border:`1px solid ${C.border}`, borderRadius:7, padding:"7px", color:C.text, fontSize:18, textAlign:"center", outline:"none" }} />
               </div>
               <div>
-                <div style={{ fontSize:11, color:"#666", marginBottom:4 }}>สีธีม</div>
-                <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                  <input type="color" value={form.color} onChange={e=>setForm(f=>({...f,color:e.target.value}))}
-                    style={{ width:40, height:34, borderRadius:6, border:"1px solid #2a3040", cursor:"pointer", padding:2 }} />
-                  <span style={{ fontSize:10, color:form.color }}>{form.color}</span>
-                </div>
+                <div style={{ ...S.label, marginBottom:4 }}>สี</div>
+                <input type="color" value={form.color} onChange={e=>setForm(f=>({...f,color:e.target.value}))} style={{ width:42, height:34, borderRadius:7, border:`1px solid ${C.border}`, cursor:"pointer", padding:2, background:"none" }} />
               </div>
               <div>
-                <div style={{ fontSize:11, color:"#666", marginBottom:4 }}>Tier</div>
-                <select value={form.tier} onChange={e=>setForm(f=>({...f,tier:e.target.value}))}
-                  style={{ background:"#111827", border:"1px solid #2a3040", borderRadius:7, padding:"7px 10px", color:TIER_COLORS[form.tier], fontSize:13, fontWeight:700, outline:"none" }}>
+                <div style={{ ...S.label, marginBottom:4 }}>Tier</div>
+                <select value={form.tier} onChange={e=>setForm(f=>({...f,tier:e.target.value}))} style={{ background:"#0a1120", border:`1px solid ${C.border}`, borderRadius:7, padding:"7px 10px", color:TIER_COLORS[form.tier], fontSize:13, fontWeight:700, outline:"none" }}>
                   {TIERS.map(t=><option key={t} value={t} style={{color:TIER_COLORS[t]}}>{t}</option>)}
                 </select>
               </div>
             </div>
             <div>
-              <div style={{ fontSize:11, color:"#666", marginBottom:6 }}>Role <span style={{ color:"#f87171" }}>*</span></div>
-              <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
-                {ROLES.map(r => {
-                  const on = form.role.includes(r);
-                  const rc = {Tank:"#60a5fa",Warrior:"#f97316",Assassin:"#a78bfa",Mage:"#818cf8",Marksman:"#34d399",Support:"#f472b6"}[r]||"#aaa";
-                  return <button key={r} onClick={()=>toggleRole(r)} style={{ background:on?`${rc}22`:"#111827", color:on?rc:"#555", border:`1px solid ${on?`${rc}77`:"#2a3040"}`, borderRadius:6, padding:"5px 12px", cursor:"pointer", fontSize:12, fontWeight:on?600:400 }}>{r}</button>;
+              <div style={{ ...S.label, marginBottom:6 }}>Role *</div>
+              <div style={{ display:"flex", gap:5, flexWrap:"wrap" }}>
+                {ROLES.map(r=>{
+                  const on=form.role.includes(r); const c=ROLE_COLORS[r]||"#aaa";
+                  return <button key={r} onClick={()=>setForm(f=>({...f,role:on?f.role.filter(x=>x!==r):[...f.role,r]}))} style={{ background:on?`${c}22`:"#0a1120", color:on?c:C.textDim, border:`1px solid ${on?`${c}66`:C.border}`, borderRadius:6, padding:"5px 12px", cursor:"pointer", fontSize:12, fontWeight:on?600:400 }}>{r}</button>;
                 })}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Preview */}
-        {form.name && (
-          <div style={{ marginTop:12, padding:"8px 12px", background:"#111827", borderRadius:8, display:"flex", alignItems:"center", gap:10 }}>
-            <div style={{ fontSize:10, color:"#555" }}>Preview:</div>
-            {form.img ? <img src={form.img} style={{ width:36, height:36, borderRadius:6, objectFit:"cover" }} />
-              : <div style={{ width:36, height:36, borderRadius:6, background:`${form.color}22`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>{form.emoji}</div>}
+        {form.name&&(
+          <div style={{ marginTop:10, padding:"8px 10px", background:"#0a1120", borderRadius:8, display:"flex", alignItems:"center", gap:8 }}>
+            <div style={{ fontSize:9, color:C.textDim }}>Preview</div>
+            {form.img?<img src={form.img} style={{ width:32,height:32,borderRadius:5,objectFit:"cover" }}/>:<div style={{ width:32,height:32,background:`${form.color}22`,borderRadius:5,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20 }}>{form.emoji}</div>}
             <span style={{ fontSize:13, fontWeight:600 }}>{form.name}</span>
-            <span style={{ fontSize:10, background:TIER_COLORS[form.tier]+"33", color:TIER_COLORS[form.tier], borderRadius:4, padding:"1px 5px", fontWeight:700 }}>{form.tier}</span>
-            {form.role.map(r=><span key={r} style={{ fontSize:10, background:"#1e2a3a", color:"#aaa", borderRadius:4, padding:"2px 6px" }}>{r}</span>)}
+            <span style={{ fontSize:10, background:TIER_COLORS[form.tier]+"33", color:TIER_COLORS[form.tier], borderRadius:4, padding:"0 5px", fontWeight:700 }}>{form.tier}</span>
+            {form.role.map(r=><span key={r} style={{ fontSize:9, background:`${ROLE_COLORS[r]||"#aaa"}18`, color:ROLE_COLORS[r]||"#aaa", borderRadius:4, padding:"1px 5px" }}>{r}</span>)}
           </div>
         )}
 
-        {msg.text && <div style={{ marginTop:8, fontSize:12, color:msg.ok?"#22c55e":"#f87171" }}>{msg.text}</div>}
-
-        <div style={{ display:"flex", gap:8, marginTop:12 }}>
-          <button onClick={save} disabled={saving} style={{ background:"#c8a84b", color:"#000", border:"none", borderRadius:7, padding:"8px 24px", cursor:"pointer", fontSize:13, fontWeight:700, opacity:saving?0.6:1 }}>
-            {saving ? "⏳ กำลังบันทึก..." : editId ? "💾 บันทึก" : "➕ เพิ่มฮีโร่"}
-          </button>
-          {editId && <button onClick={cancel} style={{ background:"transparent", color:"#888", border:"1px solid #333", borderRadius:7, padding:"8px 16px", cursor:"pointer", fontSize:13 }}>ยกเลิก</button>}
+        {msg.t&&<div style={{ marginTop:8, fontSize:12, color:msg.ok?"#22c55e":"#f87171" }}>{msg.t}</div>}
+        <div style={{ display:"flex", gap:8, marginTop:10 }}>
+          <button onClick={save} style={{ background:C.gold, color:"#000", border:"none", borderRadius:8, padding:"8px 24px", cursor:"pointer", fontSize:13, fontWeight:700, fontFamily:"Rajdhani,sans-serif", letterSpacing:"0.08em" }}>{editId?"💾 บันทึก":"➕ เพิ่ม"}</button>
+          {editId&&<button onClick={()=>{setEditId(null);setForm(EMPTY);}} style={{ background:"transparent", color:C.textDim, border:`1px solid ${C.border}`, borderRadius:8, padding:"8px 16px", cursor:"pointer", fontSize:13 }}>ยกเลิก</button>}
         </div>
       </div>
 
-      {/* ── Hero list ── */}
-      <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:10 }}>
-        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 ค้นหาฮีโร่..."
-          style={{ flex:1, background:"#111827", border:"1px solid #2a3040", borderRadius:7, padding:"8px 12px", color:"#ccc", fontSize:13, outline:"none" }} />
-        <span style={{ fontSize:11, color:"#555" }}>{filtered.length} ตัว</span>
+      {/* List */}
+      <div style={{ display:"flex", gap:8, marginBottom:10 }}>
+        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 ค้นหา..." style={{ flex:1, background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:8, padding:"8px 12px", color:C.text, fontSize:13, outline:"none" }} />
+        <span style={{ ...S.label, display:"flex", alignItems:"center" }}>{filtered.length} ตัว</span>
       </div>
-
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))", gap:8 }}>
-        {filtered.map(h => (
-          <div key={h.id||h._id} style={{ background:"#111827", borderRadius:10, padding:"10px 12px", border:`1px solid ${editId===(h.id||h._id)?"#c8a84b55":"#1e2a3a"}`, display:"flex", alignItems:"center", gap:10 }}>
-            {h.img
-              ? <img src={h.img} alt={h.name} style={{ width:48, height:48, borderRadius:8, objectFit:"cover", border:`1px solid ${h.color}55`, flexShrink:0 }} />
-              : <div style={{ width:48, height:48, borderRadius:8, background:`${h.color}22`, border:`1px solid ${h.color}44`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:26, flexShrink:0 }}>{h.emoji}</div>
-            }
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(210px,1fr))", gap:8 }}>
+        {filtered.map(h=>(
+          <div key={h.id} style={{ ...S.card, padding:"10px 12px", display:"flex", alignItems:"center", gap:10, borderColor:editId===h.id?`${C.gold}55`:C.border }}>
+            {h.img?<img src={h.img} style={{ width:46,height:46,borderRadius:8,objectFit:"cover",flexShrink:0,border:`1px solid ${h.color}44` }}/>:<div style={{ width:46,height:46,borderRadius:8,background:`${h.color}22`,border:`1px solid ${h.color}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,flexShrink:0 }}>{h.emoji}</div>}
             <div style={{ flex:1, minWidth:0 }}>
-              <div style={{ fontSize:13, fontWeight:600, color:"#fff", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{h.name}</div>
-              <div style={{ fontSize:10, color:"#555", marginBottom:2 }}>{(h.role||[]).join(", ")}</div>
+              <div style={{ fontSize:13, fontWeight:600, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{h.name}</div>
+              <div style={{ fontSize:10, color:C.textDim }}>{(h.role||[]).join(", ")}</div>
               <span style={{ fontSize:10, background:TIER_COLORS[h.tier]+"33", color:TIER_COLORS[h.tier], borderRadius:4, padding:"0 5px", fontWeight:700 }}>{h.tier}</span>
-              {!h.img && <span style={{ marginLeft:5, fontSize:9, color:"#444" }}>ยังไม่มีรูป</span>}
             </div>
             <div style={{ display:"flex", flexDirection:"column", gap:4, flexShrink:0 }}>
-              <button onClick={()=>edit(h)} style={{ background:"#3b82f622", color:"#60a5fa", border:"1px solid #3b82f644", borderRadius:5, padding:"4px 10px", cursor:"pointer", fontSize:11 }}>✏️ แก้</button>
-              <button onClick={()=>del(h)}  style={{ background:"#f8717122", color:"#f87171", border:"1px solid #f8717144", borderRadius:5, padding:"4px 10px", cursor:"pointer", fontSize:11 }}>🗑️ ลบ</button>
+              <button onClick={()=>edit(h)} style={{ background:"#3b82f618", color:C.blue, border:`1px solid ${C.blue}33`, borderRadius:5, padding:"3px 10px", cursor:"pointer", fontSize:11 }}>✏️</button>
+              <button onClick={()=>del(h)}  style={{ background:"#ef444418", color:"#ef4444", border:"1px solid #ef444433", borderRadius:5, padding:"3px 10px", cursor:"pointer", fontSize:11 }}>🗑️</button>
             </div>
           </div>
         ))}
@@ -1128,104 +845,75 @@ function AdminHeroes({ heroes, setHeroes, fetchHeroes, apiBase }) {
   );
 }
 
-// ==================== ADMIN: TIER LIST ====================
-function AdminTier({ heroes, setHeroes, fetchHeroes, apiBase }) {
+// ─── ADMIN TIER ───────────────────────────────────────────────────────────────
+function AdminTier({ heroes, setHeroes }) {
   const [dragging, setDragging] = useState(null);
-  const [hovering, setHovering] = useState(null);
-  const [saving, setSaving] = useState(false);
+  const byTier = TIERS.reduce((a,t)=>({ ...a, [t]:heroes.filter(h=>h.tier===t) }), {});
 
-  async function setTier(heroId, tier) {
-    // Optimistic update
-    setHeroes(prev => prev.map(h => (h.id===heroId||h._id===heroId) ? { ...h, tier } : h));
-    try {
-      const fd = new FormData();
-      fd.append("tier", tier);
-      await fetch(`${apiBase}/api/heroes/${heroId}`, { method:"PUT", body:fd });
-    } catch (err) {
-      fetchHeroes(); // revert on error
-    }
-  }
-
-  const byTier = TIERS.reduce((acc,t) => {
-    acc[t] = heroes.filter(h=>h.tier===t);
-    return acc;
-  }, {});
+  function moveTier(id, tier) { setHeroes(p=>p.map(h=>h.id===id?{...h,tier}:h)); }
 
   return (
     <div>
-      <div style={{ fontSize:12, color:"#666", marginBottom:12 }}>คลิกที่ Tier เพื่อย้ายฮีโร่</div>
-      {TIERS.map(tier => (
-        <div key={tier} style={{ display:"flex", alignItems:"stretch", gap:0, marginBottom:6, borderRadius:8, overflow:"hidden", border:"1px solid #1e2a3a" }}>
-          <div style={{ width:48, background:TIER_COLORS[tier]+"33", display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, fontWeight:800, color:TIER_COLORS[tier], flexShrink:0 }}>{tier}</div>
-          <div style={{ flex:1, background:"#0d1220", display:"flex", flexWrap:"wrap", gap:5, padding:"8px 10px", minHeight:52 }}
-            onDragOver={e=>{ e.preventDefault(); setHovering(tier); }}
-            onDrop={e=>{ if(dragging) setTier(dragging, tier); setDragging(null); setHovering(null); }}>
+      <div style={{ fontSize:11, color:C.textDim, marginBottom:12 }}>Drag & Drop ฮีโร่ระหว่าง Tier หรือกดปุ่ม Tier เพื่อย้าย</div>
+      {TIERS.map(tier=>(
+        <div key={tier} style={{ display:"flex", marginBottom:6, borderRadius:8, overflow:"hidden", border:`1px solid ${C.border}` }}>
+          <div style={{ width:48, background:TIER_COLORS[tier]+"22", display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, fontWeight:800, color:TIER_COLORS[tier], flexShrink:0, fontFamily:"Rajdhani,sans-serif" }}>{tier}</div>
+          <div style={{ flex:1, background:C.bgCard, display:"flex", flexWrap:"wrap", gap:5, padding:"8px 10px", minHeight:52 }}
+            onDragOver={e=>e.preventDefault()} onDrop={e=>{ if(dragging) moveTier(dragging,tier); setDragging(null); }}>
             {byTier[tier].map(h=>(
               <div key={h.id} draggable onDragStart={()=>setDragging(h.id)} onDragEnd={()=>setDragging(null)}
-                style={{ background:`${h.color}22`, border:`1px solid ${h.color}44`, borderRadius:7, padding:"4px 8px", display:"flex", alignItems:"center", gap:4, cursor:"grab", fontSize:12 }}>
-                <span>{h.emoji}</span>
-                <span style={{ color:"#ccc" }}>{h.name}</span>
+                style={{ display:"flex", alignItems:"center", gap:4, background:`${h.color}18`, border:`1px solid ${h.color}44`, borderRadius:7, padding:"4px 8px", cursor:"grab" }}>
+                {h.img?<img src={h.img} style={{ width:20,height:20,borderRadius:3,objectFit:"cover" }}/>:<span style={{ fontSize:14 }}>{h.emoji}</span>}
+                <span style={{ fontSize:11, color:C.text }}>{h.name}</span>
                 <div style={{ display:"flex", flexDirection:"column", gap:1, marginLeft:2 }}>
-                  {TIERS.map(t=> t!==tier && (
-                    <button key={t} onClick={()=>setTier(h.id,t)} style={{ background:"transparent", color:TIER_COLORS[t], border:"none", cursor:"pointer", fontSize:8, padding:"0 2px", lineHeight:1.2 }}>{t}▾</button>
+                  {TIERS.filter(t=>t!==tier).map(t=>(
+                    <button key={t} onClick={()=>moveTier(h.id,t)} style={{ background:"transparent", color:TIER_COLORS[t], border:"none", cursor:"pointer", fontSize:8, padding:0, lineHeight:1.2 }}>{t}</button>
                   ))}
                 </div>
               </div>
             ))}
-            {hovering===tier && dragging && <div style={{ width:50, height:40, border:"2px dashed #c8a84b66", borderRadius:7 }} />}
           </div>
         </div>
       ))}
-      <div style={{ fontSize:11, color:"#555", marginTop:8 }}>💡 Drag & Drop หรือกดปุ่ม tier เพื่อย้าย</div>
     </div>
   );
 }
 
-// ==================== ADMIN: RELATIONS ====================
-function AdminRelations({ heroes, setHeroes, fetchHeroes, apiBase }) {
-  const [selected, setSelected] = useState(null);
+// ─── ADMIN RELATIONS ──────────────────────────────────────────────────────────
+function AdminRelations({ heroes, setHeroes }) {
+  const [sel, setSel] = useState(null);
   const [tab, setTab] = useState("counters");
   const [search, setSearch] = useState("");
-  const [msg, setMsg] = useState("");
+  const hero = sel ? heroes.find(h=>h.id===sel) : null;
 
-  const hero = selected ? heroes.find(h=>(h.id===selected||h._id===selected)) : null;
-
-  async function toggle(type, targetId) {
-    if (!hero) return;
-    const hid = hero.id || hero._id;
-    const arr = hero[type] || [];
-    const next = arr.includes(targetId) ? arr.filter(x=>x!==targetId) : [...arr, targetId];
-    // Optimistic
-    setHeroes(prev => prev.map(h => (h.id===hid||h._id===hid) ? { ...h, [type]: next } : h));
-    try {
-      await fetch(`${apiBase}/api/heroes/${hid}/relations`, {
-        method: "PATCH",
-        headers: { "Content-Type":"application/json" },
-        body: JSON.stringify({ [type]: next }),
-      });
-      setMsg("✅ บันทึกแล้ว"); setTimeout(()=>setMsg(""),1500);
-    } catch (err) {
-      fetchHeroes();
-      setMsg("❌ " + err.message); setTimeout(()=>setMsg(""),2000);
-    }
+  function toggle(type, tid) {
+    setHeroes(p=>p.map(h=>{
+      if (h.id!==sel) return h;
+      const arr=h[type]||[];
+      return { ...h, [type]:arr.includes(tid)?arr.filter(x=>x!==tid):[...arr,tid] };
+    }));
   }
 
-  const filtered = heroes.filter(h => h.id!==selected && h.name.toLowerCase().includes(search.toLowerCase()));
+  const TAB_META = {
+    counters:    { label:"🗡️ Counter",      color:"#f97316" },
+    counteredBy: { label:"🛡️ Countered By", color:"#ef4444" },
+    synergy:     { label:"💫 Synergy",       color:"#22c55e" },
+  };
 
   return (
     <div style={{ display:"flex", gap:12 }}>
       {/* Hero list */}
-      <div style={{ width:200, flexShrink:0 }}>
-        <div style={{ fontSize:12, color:"#666", marginBottom:6 }}>เลือกฮีโร่</div>
+      <div style={{ width:190, flexShrink:0 }}>
+        <div style={{ ...S.label, marginBottom:6 }}>เลือกฮีโร่</div>
         <div style={{ maxHeight:600, overflowY:"auto" }}>
           {heroes.map(h=>(
-            <div key={h.id||h._id} onClick={()=>{ setSelected(h.id||h._id); setSearch(""); }} style={{ display:"flex", alignItems:"center", gap:8, padding:"6px 8px", borderRadius:7, cursor:"pointer", background:selected===(h.id||h._id)?"#c8a84b22":"transparent", border:`1px solid ${selected===(h.id||h._id)?"#c8a84b55":"transparent"}`, marginBottom:3 }}>
-              <span style={{ fontSize:18 }}>{h.emoji}</span>
-              <div>
-                <div style={{ fontSize:12, color:selected===h.id?"#c8a84b":"#ccc" }}>{h.name}</div>
-                <div style={{ fontSize:9, color:"#555" }}>{h.role.join(", ")}</div>
+            <div key={h.id} onClick={()=>{ setSel(h.id); setSearch(""); }} style={{ display:"flex", alignItems:"center", gap:8, padding:"6px 8px", borderRadius:7, cursor:"pointer", background:sel===h.id?`${C.gold}15`:"transparent", border:`1px solid ${sel===h.id?C.goldDim+"66":"transparent"}`, marginBottom:3, transition:"all .1s" }}>
+              {h.img?<img src={h.img} style={{ width:28,height:28,borderRadius:5,objectFit:"cover",flexShrink:0 }}/>:<div style={{ width:28,height:28,borderRadius:5,background:`${h.color}22`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0 }}>{h.emoji}</div>}
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ fontSize:12, color:sel===h.id?C.gold:C.text, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{h.name}</div>
+                <div style={{ fontSize:9, color:C.textDim }}>{(h.role||[]).join(", ")}</div>
               </div>
-              <span style={{ marginLeft:"auto", fontSize:9, color:TIER_COLORS[h.tier], fontWeight:700 }}>{h.tier}</span>
+              <span style={{ fontSize:9, color:TIER_COLORS[h.tier], fontWeight:700 }}>{h.tier}</span>
             </div>
           ))}
         </div>
@@ -1234,54 +922,37 @@ function AdminRelations({ heroes, setHeroes, fetchHeroes, apiBase }) {
       {/* Relations panel */}
       <div style={{ flex:1 }}>
         {!hero ? (
-          <div style={{ color:"#555", fontSize:13, padding:20, textAlign:"center" }}>👆 เลือกฮีโร่ทางซ้าย</div>
+          <div style={{ color:C.textDim, fontSize:13, padding:24, textAlign:"center" }}>← เลือกฮีโร่ทางซ้าย</div>
         ) : (
           <div>
-            <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
-              <span style={{ fontSize:28 }}>{hero.emoji}</span>
+            <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12, padding:"10px 12px", ...S.card }}>
+              {hero.img?<img src={hero.img} style={{ width:40,height:40,borderRadius:7,objectFit:"cover" }}/>:<div style={{ width:40,height:40,borderRadius:7,background:`${hero.color}22`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:24 }}>{hero.emoji}</div>}
               <div>
-                <div style={{ fontSize:15, fontWeight:600 }}>{hero.name}</div>
-                <div style={{ fontSize:11, color:"#666" }}>{hero.role.join(", ")} · <span style={{ color:TIER_COLORS[hero.tier] }}>{hero.tier}</span></div>
+                <div style={{ fontSize:15, fontWeight:600, fontFamily:"Rajdhani,sans-serif" }}>{hero.name}</div>
+                <div style={{ fontSize:11, color:C.textDim }}>{(hero.role||[]).join(", ")} · <span style={{ color:TIER_COLORS[hero.tier] }}>{hero.tier}</span></div>
               </div>
             </div>
 
-            {msg && <div style={{ color:"#22c55e", fontSize:11, marginBottom:8 }}>{msg}</div>}
-
-            <div style={{ display:"flex", gap:6, marginBottom:12 }}>
-              {[["counters","🗡️ Counter","#f97316"],["counteredBy","🛡️ Countered By","#ef4444"],["synergy","💫 Synergy","#22c55e"]].map(([t,l,c])=>(
-                <button key={t} onClick={()=>setTab(t)} style={{ background:tab===t?`${c}22`:"#111827", color:tab===t?c:"#666", border:`1px solid ${tab===t?c+"55":"#2a3040"}`, borderRadius:6, padding:"5px 12px", cursor:"pointer", fontSize:12 }}>{l}</button>
+            <div style={{ display:"flex", gap:6, marginBottom:10 }}>
+              {Object.entries(TAB_META).map(([t,m])=>(
+                <button key={t} onClick={()=>setTab(t)} style={{ background:tab===t?`${m.color}18`:"transparent", color:tab===t?m.color:C.textDim, border:`1px solid ${tab===t?m.color+"44":C.border}`, borderRadius:7, padding:"5px 12px", cursor:"pointer", fontSize:12, fontWeight:tab===t?600:400 }}>{m.label} <span style={{ fontSize:10, opacity:.7 }}>({(hero[t]||[]).length})</span></button>
               ))}
             </div>
 
-            {/* Current relations */}
-            <div style={{ marginBottom:10 }}>
-              <div style={{ fontSize:11, color:"#888", marginBottom:5 }}>
-                {tab==="counters"?"ตัวที่ฮีโร่นี้ Counter ได้":tab==="counteredBy"?"ตัวที่ Counter ฮีโร่นี้":"Synergy ด้วย"}
-                {" ("}{ (hero[tab]||[]).length}{"ตัว)"}
-              </div>
-              <div style={{ display:"flex", flexWrap:"wrap", gap:5 }}>
-                {(hero[tab]||[]).map(id=>{ const h=heroes.find(x=>x.id===id); return h?(
-                  <div key={id} style={{ display:"flex", alignItems:"center", gap:4, background:"#1e2a3a", borderRadius:6, padding:"3px 8px" }}>
-                    <span>{h.emoji}</span><span style={{ fontSize:11, color:"#ccc" }}>{h.name}</span>
-                    <button onClick={()=>toggle(tab,id)} style={{ background:"transparent", color:"#f87171", border:"none", cursor:"pointer", fontSize:10, marginLeft:2 }}>×</button>
-                  </div>
-                ):null; })}
-              </div>
-            </div>
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 ค้นหาเพื่อเพิ่ม/ลบ..." style={{ width:"100%", background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:8, padding:"7px 10px", color:C.text, fontSize:12, outline:"none", marginBottom:8 }} />
 
-            {/* Add relations */}
-            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 ค้นหาเพื่อเพิ่ม..." style={{ background:"#111827", border:"1px solid #2a3040", borderRadius:7, padding:"7px 10px", color:"#ccc", fontSize:12, width:"100%", outline:"none", marginBottom:8 }} />
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(130px,1fr))", gap:5, maxHeight:280, overflowY:"auto" }}>
-              {filtered.map(h => {
-                const isOn = (hero[tab]||[]).includes(h.id);
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(130px,1fr))", gap:5, maxHeight:350, overflowY:"auto" }}>
+              {heroes.filter(h=>h.id!==sel&&h.name.toLowerCase().includes(search.toLowerCase())).map(h=>{
+                const on=(hero[tab]||[]).includes(h.id);
+                const col=TAB_META[tab].color;
                 return (
-                  <div key={h.id} onClick={()=>toggle(tab,h.id)} style={{ display:"flex", alignItems:"center", gap:6, background:isOn?"#22c55e22":"#111827", border:`1px solid ${isOn?"#22c55e55":"#1e2a3a"}`, borderRadius:7, padding:"6px 8px", cursor:"pointer" }}>
-                    <span style={{ fontSize:16 }}>{h.emoji}</span>
-                    <div>
-                      <div style={{ fontSize:11, color:isOn?"#86efac":"#ccc" }}>{h.name}</div>
-                      <div style={{ fontSize:8, color:"#555" }}>{h.tier}</div>
+                  <div key={h.id} onClick={()=>toggle(tab,h.id)} style={{ display:"flex", alignItems:"center", gap:6, background:on?`${col}15`:C.bgCard, border:`1px solid ${on?`${col}44`:C.border}`, borderRadius:7, padding:"6px 8px", cursor:"pointer", transition:"all .1s" }}>
+                    {h.img?<img src={h.img} style={{ width:28,height:28,borderRadius:5,objectFit:"cover",flexShrink:0 }}/>:<div style={{ width:28,height:28,borderRadius:5,background:`${h.color}22`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0 }}>{h.emoji}</div>}
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ fontSize:11, color:on?col:C.text, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{h.name}</div>
+                      <div style={{ fontSize:8, color:C.textDim }}>{h.tier}</div>
                     </div>
-                    {isOn && <span style={{ marginLeft:"auto", color:"#22c55e", fontSize:12 }}>✓</span>}
+                    {on&&<span style={{ color:col, fontSize:12, flexShrink:0 }}>✓</span>}
                   </div>
                 );
               })}
