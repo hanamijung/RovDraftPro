@@ -402,10 +402,10 @@ function RoleFilterBar({ active, onChange }) {
         const col = r==="All" ? C.gold : (ROLE_COLORS[r]||C.textDim);
         return (
           <button key={r} onClick={()=>onChange(r===active&&r!=="All"?"All":r)} title={r}
-            style={{ flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column", gap:3, background:isActive?`${col}22`:C.bgCard, color:isActive?col:C.textDim, border:`1.5px solid ${isActive?col+"99":C.border}`, borderRadius:10, padding:"7px 10px", cursor:"pointer", transition:"all .15s", minWidth:44, position:"relative" }}>
+            style={{ flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column", gap:3, background:isActive?`${col}22`:"transparent", color:isActive?col:C.textDim, border:`1.5px solid ${isActive?col+"99":C.border}`, borderRadius:10, padding:"7px 10px", cursor:"pointer", transition:"all .15s", minWidth:44, position:"relative" }}>
             {r==="All"
               ? <span style={{ fontSize:16 }}>⭐</span>
-              : <img src={ROLE_IMG[r]} style={{ width:24, height:24, objectFit:"contain", filter: isActive?"brightness(1.8) sepia(1) hue-rotate(5deg) saturate(3)":"brightness(1.5)", transition:"filter .15s" }} />
+              : <img src={ROLE_IMG[r]} style={{ width:26, height:26, objectFit:"contain", mixBlendMode:"screen", filter: isActive?"brightness(1.4) saturate(1.5)":"brightness(0.9)", transition:"filter .15s" }} />
             }
             <span style={{ fontSize:9, fontWeight:isActive?700:400, letterSpacing:"0.03em", whiteSpace:"nowrap" }}>{r}</span>
             {isActive && <div style={{ position:"absolute", bottom:-4, left:"50%", transform:"translateX(-50%)", width:20, height:2, background:col, borderRadius:1 }} />}
