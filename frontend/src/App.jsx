@@ -430,8 +430,6 @@ function RoleFilterBar({ active, onChange }) {
       })}
     </div>
   );
-}) {
-  const tabs = ["All", ...ROLES];
   return (
     <div style={{ display:"flex", gap:6, overflowX:"auto", paddingBottom:4, marginBottom:8, scrollbarWidth:"none" }}>
       {tabs.map(r=>{
