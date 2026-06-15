@@ -406,9 +406,10 @@ function RoleFilterBar({ active, onChange }) {
               ? <span style={{ fontSize:22, filter: isActive ? "brightness(1.3)" : "brightness(0.7)" }}>⭐</span>
               : <img src={ROLE_IMG[r]} alt={r} style={{
                   width:28, height:28, objectFit:"contain",
+                  mixBlendMode: "screen",
                   filter: isActive
-                    ? "brightness(1.6) saturate(1.4) drop-shadow(0 0 4px rgba(201,168,76,0.9))"
-                    : "brightness(0.55) saturate(0.6)",
+                    ? "brightness(1.8) saturate(1.3) drop-shadow(0 0 5px rgba(201,168,76,0.9))"
+                    : "grayscale(1) brightness(1.8)",
                   transition:"filter .2s",
                 }} />
             }
@@ -437,47 +438,6 @@ const ROLE_IMG = {
   Carry: "data:image/png;base64,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",
 };
 
-function RoleFilterBar({ active, onChange }) {
-  const tabs = ["All", ...ROLES];
-  return (
-    <div style={{ display:"flex", gap:6, overflowX:"auto", paddingBottom:2, marginBottom:8, scrollbarWidth:"none" }}>
-      {tabs.map(r => {
-        const isActive = active === r;
-        const col = r==="All" ? C.gold : (ROLE_COLORS[r]||C.textDim);
-        return (
-          <button key={r} onClick={()=>onChange(r===active&&r!=="All"?"All":r)} title={r}
-            style={{
-              flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center",
-              flexDirection:"column", gap:4,
-              width:64, height:64,
-              background: isActive ? `${col}25` : C.bgCard,
-              color: isActive ? col : C.textDim,
-              border: `1.5px solid ${isActive ? col : C.border}`,
-              borderRadius:12, cursor:"pointer", transition:"all .15s", position:"relative",
-              boxShadow: isActive ? `0 0 12px ${col}55` : "none",
-            }}>
-            {r==="All"
-              ? <span style={{ fontSize:22 }}>⭐</span>
-              : <img src={ROLE_IMG[r]} alt={r} style={{
-                  width:28, height:28, objectFit:"contain",
-                  filter: isActive
-                    ? ROLE_ACTIVE_FILTER[r]
-                    : "brightness(1.8)",
-                  transition:"filter .2s",
-                }} />
-            }
-            <span style={{ fontSize:9, fontWeight:isActive?700:400, letterSpacing:"0.04em", fontFamily:"Rajdhani,sans-serif" }}>
-              {r.toUpperCase()}
-            </span>
-            {isActive && (
-              <div style={{ position:"absolute", bottom:0, left:"50%", transform:"translateX(-50%)", width:24, height:2, background:col, borderRadius:1 }} />
-            )}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
 
 // ─── DRAFT BOARD ──────────────────────────────────────────────────────────────
 function DraftBoard({ draft, setDraft, heroes, boLockedIds=new Set() }) {
